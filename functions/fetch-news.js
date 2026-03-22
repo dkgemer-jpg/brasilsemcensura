@@ -1,21 +1,51 @@
-// functions/fetch-news.js — Cloudflare Pages Function (v6 traducao total)
+// functions/fetch-news.js — Cloudflare Pages Function (v7 filtro + traducao)
+
+const PALAVRAS_RELEVANTES = [
+  'brasil', 'russia', 'china', 'eua', 'guerra', 'geopolit', 'brics', 'nato', 'otan',
+  'israel', 'iran', 'ukraine', 'ucrania', 'trump', 'putin', 'xi', 'lula', 'eleicao',
+  'election', 'nuclear', 'sanction', 'sanctao', 'economia', 'economy', 'energy', 'energia',
+  'petroleo', 'oil', 'gas', 'military', 'militar', 'defesa', 'defense', 'intelligence',
+  'censura', 'censorship', 'liberdade', 'freedom', 'tech', 'tecnologia', 'ia', 'artificial',
+  'banco', 'bank', 'dolar', 'dollar', 'inflacao', 'inflation', 'africa', 'asia', 'europa',
+  'middle east', 'oriente', 'conflito', 'conflict', 'acordo', 'agreement', 'missil', 'missile',
+  'drone', 'ataque', 'attack', 'palestina', 'palestine', 'gaza', 'siria', 'syria',
+  'venezuela', 'argentina', 'mexico', 'colombia', 'cuba', 'nicaragua', 'bolivar',
+  'comercio', 'trade', 'tarifa', 'tariff', 'sancao', 'embargo', 'alianca', 'alliance'
+];
+
+function ehRelevante(titulo, desc) {
+  const texto = (titulo + ' ' + desc).toLowerCase();
+  return PALAVRAS_RELEVANTES.some(p => texto.includes(p));
+}
+
+function similaridade(a, b) {
+  const wa = new Set(a.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  const wb = new Set(b.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  if (wa.size === 0 || wb.size === 0) return 0;
+  let comuns = 0;
+  for (const w of wa) if (wb.has(w)) comuns++;
+  return comuns / Math.min(wa.size, wb.size);
+}
+
+function removerDuplicatas(itens) {
+  const resultado = [];
+  for (const item of itens) {
+    const dup = resultado.some(r => similaridade(r.title, item.title) > 0.6);
+    if (!dup) resultado.push(item);
+  }
+  return resultado;
+}
 
 async function traduzirComGroq(itens, groqKey) {
   if (!groqKey || itens.length === 0) return null;
-
   const textos = itens.map((item, i) =>
     `[${i}] TITULO: ${item.title}\nRESUMO: ${item.desc}`
   ).join('\n\n');
-
-  const prompt = `Traduza TODOS os textos abaixo para portugues brasileiro fluente. Mantenha exatamente o formato [numero] TITULO: e RESUMO:. Nao adicione explicacoes.\n\n${textos}`;
-
+  const prompt = `Traduza TODOS os textos abaixo para portugues brasileiro fluente e jornalistico. Mantenha exatamente o formato [numero] TITULO: e RESUMO:. Nao adicione explicacoes.\n\n${textos}`;
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${groqKey}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama3-8b-8192',
         messages: [{ role: 'user', content: prompt }],
@@ -24,11 +54,9 @@ async function traduzirComGroq(itens, groqKey) {
       }),
       signal: AbortSignal.timeout(20000)
     });
-
     if (!res.ok) return null;
     const data = await res.json();
     const texto = data.choices?.[0]?.message?.content || '';
-
     const resultado = itens.map(i => ({ ...i }));
     const partes = texto.split(/\[(\d+)\]/);
     for (let i = 1; i < partes.length; i += 2) {
@@ -36,18 +64,13 @@ async function traduzirComGroq(itens, groqKey) {
       const conteudo = partes[i + 1] || '';
       const tituloMatch = conteudo.match(/TITULO:\s*(.+?)(?:\nRESUMO:|$)/s);
       const resumoMatch = conteudo.match(/RESUMO:\s*([\s\S]+?)(?=\n\[|\s*$)/);
-      if (tituloMatch && idx < resultado.length && tituloMatch[1].trim()) {
+      if (tituloMatch && idx < resultado.length && tituloMatch[1].trim())
         resultado[idx].title = tituloMatch[1].trim();
-      }
-      if (resumoMatch && idx < resultado.length && resumoMatch[1].trim()) {
+      if (resumoMatch && idx < resultado.length && resumoMatch[1].trim())
         resultado[idx].desc = resumoMatch[1].trim().slice(0, 600);
-      }
     }
     return resultado;
-  } catch(e) {
-    console.error('Groq erro:', e.message);
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
 async function traduzirComMyMemory(texto) {
@@ -56,16 +79,13 @@ async function traduzirComMyMemory(texto) {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
     const data = await res.json();
     return data.responseData?.translatedText || texto;
-  } catch(e) {
-    return texto;
-  }
+  } catch(e) { return texto; }
 }
 
 function jaPtBr(texto) {
   const palavrasPt = ['de', 'da', 'do', 'que', 'em', 'para', 'com', 'uma', 'um', 'os', 'as', 'por', 'como', 'mas', 'seu', 'sua', 'isso', 'este', 'esta', 'nos', 'ao', 'pelo', 'pela'];
   const palavras = texto.toLowerCase().split(/\s+/);
-  const ptCount = palavras.filter(p => palavrasPt.includes(p)).length;
-  return ptCount >= 2;
+  return palavras.filter(p => palavrasPt.includes(p)).length >= 2;
 }
 
 export async function onRequest(context) {
@@ -85,7 +105,7 @@ export async function onRequest(context) {
   // 1. NewsData.io
   if (API_KEY && API_KEY !== 'your_newsdata_api_key_here') {
     try {
-      const query = 'Brasil OR BRICS OR geopolitica OR China OR Russia OR censura OR tecnologia';
+      const query = 'geopolitica OR guerra OR BRICS OR China OR Russia OR Brasil OR economia OR sancao OR nuclear OR eleicao';
       const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&language=pt,en&q=${encodeURIComponent(query)}&size=10`;
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       const data = await res.json();
@@ -119,7 +139,7 @@ export async function onRequest(context) {
         const xml = await res.text();
         const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
         const parsed = [];
-        for (const item of items.slice(0, 4)) {
+        for (const item of items.slice(0, 6)) {
           const title = (item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || item.match(/<title>(.*?)<\/title>/) || [])[1] || '';
           const desc  = (item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/) || item.match(/<description>(.*?)<\/description>/) || [])[1] || '';
           const link  = (item.match(/<link>(.*?)<\/link>/) || [])[1] || '#';
@@ -131,7 +151,6 @@ export async function onRequest(context) {
 
     for (const r of rssResults) {
       if (r.status === 'fulfilled') results.push(...r.value);
-      if (results.length >= 20) break;
     }
   }
 
@@ -139,32 +158,32 @@ export async function onRequest(context) {
     results = [{ title: 'Configure NEWSDATA_API_KEY', desc: 'Configure as chaves de API no Cloudflare Pages para ver noticias reais.', link: '#', source: 'Sistema', image: null }];
   }
 
-  const finais = results.slice(0, 20);
+  // 3. Filtrar por relevancia
+  const relevantes = results.filter(item => ehRelevante(item.title, item.desc));
+  const base = relevantes.length >= 8 ? relevantes : results; // fallback se filtrar demais
 
-  // 3. Traducao: separar os que nao estao em PT
+  // 4. Remover duplicatas
+  const semDup = removerDuplicatas(base);
+
+  const finais = semDup.slice(0, 20);
+
+  // 5. Traducao
   const precisamTraducao = finais
     .map((item, i) => ({ item, i }))
     .filter(({ item }) => !jaPtBr(item.title));
 
   if (precisamTraducao.length > 0) {
     let groqFuncionou = false;
-
-    // Tentar Groq em lotes de 5
     if (GROQ_KEY) {
       for (let i = 0; i < precisamTraducao.length; i += 5) {
         const lote = precisamTraducao.slice(i, i + 5);
-        const itensTraduzir = lote.map(({ item }) => ({ ...item }));
-        const traduzidos = await traduzirComGroq(itensTraduzir, GROQ_KEY);
+        const traduzidos = await traduzirComGroq(lote.map(({ item }) => ({ ...item })), GROQ_KEY);
         if (traduzidos) {
           groqFuncionou = true;
-          lote.forEach(({ i: idx }, j) => {
-            finais[idx] = traduzidos[j];
-          });
+          lote.forEach(({ i: idx }, j) => { finais[idx] = traduzidos[j]; });
         }
       }
     }
-
-    // Fallback: MyMemory gratuito se Groq falhar
     if (!groqFuncionou) {
       await Promise.allSettled(
         precisamTraducao.slice(0, 10).map(async ({ item, i: idx }) => {
