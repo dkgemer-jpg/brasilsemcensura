@@ -706,7 +706,7 @@ footer{background:var(--card);border-top:1px solid var(--border);position:relati
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
-const SITE_URL     = 'https://brasil-sem-censura.netlify.app';
+const SITE_URL     = 'https://brasilsemcensura.pages.dev';
 const OWNER_TOKEN  = 'owner_permanent_dkgemerbr_2024_bsc';
 const OWNER_SECRET = 'DKGEMERBR';
 
@@ -819,7 +819,7 @@ async function processarComIA(art){
     const ctrl = new AbortController();
     const timer = setTimeout(()=>ctrl.abort(), 15000);
 
-    const r = await fetch('/functions/groq-proxy',{
+    const r = await fetch('/groq-proxy',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       signal: ctrl.signal,
@@ -877,7 +877,7 @@ async function carregarOutroLadoArtigo(n){
   olDiv.style.display = 'block';
 
   try{
-    const res = await fetch('/functions/groq-proxy',{
+    const res = await fetch('/groq-proxy',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({messages:[
@@ -1179,11 +1179,11 @@ async function openPix() {
   document.body.style.overflow = 'hidden';
 
   try {
-    const res  = await fetch('/functions/mp-create', { method: 'POST' });
+    const res  = await fetch('/mp-create', { method: 'POST' });
     const data = await res.json();
 
     if (!data.success) {
-      wrap.innerHTML = '<div style="color:var(--red);padding:20px">Erro ao gerar Pix. Verifique as chaves no Netlify.</div>';
+      wrap.innerHTML = '<div style="color:var(--red);padding:20px">Erro ao gerar Pix: '+( data.error||'sem detalhe')+'</div>';
       return;
     }
 
@@ -1203,7 +1203,7 @@ async function openPix() {
     // Polling: checa o status a cada 4 segundos
     _pixPollingTimer = setInterval(async () => {
       try {
-        const r = await fetch('/functions/mp-status', {
+        const r = await fetch('/mp-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paymentId: _pixPaymentId })
@@ -1234,7 +1234,7 @@ async function openPix() {
     }, 4000);
 
   } catch (e) {
-    wrap.innerHTML = '<div style="color:var(--red);padding:20px">Erro de conexão com o servidor.</div>';
+    wrap.innerHTML = '<div style="color:var(--red);padding:20px">Erro: '+e.message+'</div>';
   }
 }
 
@@ -1299,7 +1299,7 @@ async function startScan(){
   let raw = [];
 
   try{
-    const r = await fetch('/functions/fetch-news', {signal: AbortSignal.timeout(20000)});
+    const r = await fetch('/fetch-news', {signal: AbortSignal.timeout(20000)});
     if(r.ok){
       const d = await r.json();
       if(Array.isArray(d) && d.length > 0){
