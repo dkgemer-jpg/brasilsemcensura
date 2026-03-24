@@ -1,5 +1,5 @@
 // fetch-news.js v7 — Brasil Sem Censura
-// Corrigido: tratamento robusto de JSON e erros de API, cache desativado para atualização em tempo real
+// Corrigido: tratamento robusto de JSON e erros de API, cache desativado para atualização em tempo real, ordenação por data de publicação
 
 export async function onRequest(context) {
   const { env } = context;
@@ -27,8 +27,8 @@ export async function onRequest(context) {
 
   try {
     const newsRes = await fetch(
-      `https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=${encodeURIComponent(query)}&language=pt,en&category=politics,world&size=20`
-    );
+      `https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=${encodeURIComponent(query)}&language=pt,en&category=politics,world&size=20&sort=pubDate`
+    ); // Adicionado &sort=pubDate para garantir as notícias mais recentes
     const newsData = await newsRes.json();
 
     if (!newsData.results || newsData.results.length === 0) {
