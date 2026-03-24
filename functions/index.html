@@ -1,1121 +1,1385 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brasil Sem Censura — Informação Soberana</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* ── VARIÁVEIS ── */
-    :root {
-      --gold: #f5c842;
-      --gold2: #f59e0b;
-      --bg: #0a0a0f;
-      --bg2: #12121f;
-      --bg3: #1a1a2e;
-      --text: #e0e0e0;
-      --muted: #a89ec9;
-      --red: #e74c3c;
-      --border: rgba(245,200,66,.18);
-      --card-shadow: 0 4px 24px rgba(0,0,0,.45);
-    }
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brasil Sem Censura — Informação Soberana</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#0f0f1a;--card:#12121f;--card2:#1a1a2e;
+  --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#4c1d95;
+  --gold:#f5c842;--gold2:#fbbf24;--gold3:rgba(245,200,66,0.12);
+  --green:#10b981;--red:#ef4444;
+  --border:rgba(139,92,246,0.15);--border2:rgba(139,92,246,0.35);
+  --glow:rgba(139,92,246,0.08);
+  --txt:#f1f0ff;--txt2:#a89ec9;--txt3:#5b5380;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;overflow-x:hidden;min-height:100vh}
 
-    /* ── RESET / BASE ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+/* ANIMATED BG */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(139,92,246,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(245,200,66,0.04) 0%, transparent 60%),
+    repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(139,92,246,0.025) 79px,rgba(139,92,246,0.025) 80px),
+    repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(139,92,246,0.025) 79px,rgba(139,92,246,0.025) 80px)}
 
-    /* ── RUÍDO DE FUNDO ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: .4;
-    }
+/* TICKER */
+.ticker{background:linear-gradient(90deg,var(--purple3),#1e1b4b);border-bottom:1px solid var(--border2);overflow:hidden;height:36px;display:flex;align-items:center;position:relative;z-index:10}
+.ticker-badge{background:var(--gold);color:#0a0a0f;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;padding:0 16px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;gap:6px}
+.ticker-inner{display:flex;animation:tick 65s linear infinite;white-space:nowrap}
+.ticker-item{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt2);padding:0 44px;letter-spacing:.5px}
+.ticker-item::before{content:'◆ ';color:var(--purple);font-size:8px}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-    /* ── TICKER ── */
-    .ticker-wrap {
-      background: var(--gold);
-      color: var(--bg);
-      overflow: hidden;
-      white-space: nowrap;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .95em;
-      letter-spacing: 1.5px;
-      position: relative;
-      z-index: 10;
-    }
-    .ticker-inner {
-      display: inline-block;
-      animation: ticker 30s linear infinite;
-      padding: 6px 0;
-    }
-    @keyframes ticker {
-      0%   { transform: translateX(100vw); }
-      100% { transform: translateX(-100%); }
-    }
+/* HEADER */
+header{background:rgba(10,10,15,0.97);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:400;backdrop-filter:blur(20px)}
+.header-inner{max-width:1340px;margin:0 auto;padding:0 28px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.logo-icon{width:50px;height:50px;flex-shrink:0}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--txt);line-height:1}
+.logo-name span{color:var(--gold);text-shadow:0 0 20px rgba(245,200,66,0.5)}
+.logo-sub{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);letter-spacing:3px;text-transform:uppercase;margin-top:3px;display:block}
+.header-right{display:flex;align-items:center;gap:12px}
+.live-pill{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:8px;color:#ef4444;text-transform:uppercase;letter-spacing:2px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.update-time{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px}
+.update-time span{color:var(--gold)}
 
-    /* ── HEADER ── */
-    header {
-      background: var(--bg2);
-      border-bottom: 2px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-    }
-    .logo-wrap { display: flex; align-items: center; gap: 14px; }
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.2em;
-      color: var(--gold);
-      letter-spacing: 3px;
-      line-height: 1;
-      text-shadow: 0 0 30px rgba(245,200,66,.3);
-    }
-    .live-tag {
-      background: var(--red);
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: .75em;
-      font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 2px;
-      animation: pulse-red 2s ease-in-out infinite;
-    }
-    @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,.5); }
-      50%       { box-shadow: 0 0 0 8px rgba(231,76,60,0); }
-    }
-    nav { display: flex; gap: 24px; align-items: center; }
-    nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-weight: 700;
-      font-size: .85em;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: color .2s;
-    }
-    nav a:hover { color: var(--gold); }
-    .nav-update {
-      color: var(--muted);
-      font-size: .75em;
-      font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 1px;
-    }
+/* NAV */
+nav{background:rgba(10,10,15,0.96);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1340px;margin:0 auto;padding:0 28px;display:flex;align-items:center;flex-wrap:wrap}
+nav a{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);text-decoration:none;padding:13px 18px;border-bottom:2px solid transparent;transition:all .18s;display:block;cursor:pointer}
+nav a:hover{color:var(--txt);border-bottom-color:var(--border2)}
+nav a.active{color:var(--gold);border-bottom-color:var(--gold)}
 
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(160deg, var(--bg3) 0%, var(--bg) 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 64px 32px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(to bottom, transparent, var(--bg));
-    }
-    .hero-label {
-      display: inline-block;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .8em;
-      letter-spacing: 4px;
-      padding: 4px 16px;
-      margin-bottom: 20px;
-      border-radius: 2px;
-    }
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.4em, 6vw, 4.2em);
-      color: var(--gold);
-      letter-spacing: 4px;
-      line-height: 1.05;
-      text-shadow: 0 0 60px rgba(245,200,66,.2);
-      margin-bottom: 16px;
-    }
-    .hero p {
-      font-size: 1.1em;
-      color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto 28px;
-      line-height: 1.6;
-    }
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .hero-stat { text-align: center; }
-    .hero-stat-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8em;
-      color: var(--gold);
-      letter-spacing: 2px;
-    }
-    .hero-stat-label { font-size: .72em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+/* WRAP */
+.wrap{max-width:1340px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
-    /* ── CATEGORIAS ── */
-    .cat-bar {
-      display: flex;
-      gap: 10px;
-      padding: 18px 32px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      background: var(--bg2);
-    }
-    .cat-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 2px;
-      font-size: .8em;
-      padding: 6px 18px;
-      cursor: pointer;
-      border-radius: 3px;
-      transition: all .2s;
-    }
-    .cat-btn:hover, .cat-btn.active {
-      background: var(--gold);
-      color: var(--bg);
-      border-color: var(--gold);
-    }
+/* HERO */
+.hero{display:grid;grid-template-columns:1fr 340px;gap:2px;background:var(--border);margin:28px 0 24px}
+.hero-main{background:var(--card);position:relative;overflow:hidden;cursor:pointer;min-height:460px;display:flex;flex-direction:column;justify-content:flex-end;transition:all .2s}
+.hero-main:hover{background:var(--card2)}
+.hero-main::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(245,200,66,.04));pointer-events:none}
+.hero-visual{position:absolute;inset:0;overflow:hidden}
+.hero-visual svg{width:100%;height:100%}
+.hero-fade{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,15,1) 30%,rgba(10,10,15,.5) 65%,transparent 100%)}
+.hero-body{position:relative;z-index:2;padding:32px}
+.hero-kicker{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.kicker-urg{background:linear-gradient(90deg,#ef4444,#dc2626);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;padding:4px 12px;display:flex;align-items:center;gap:5px}
+.kicker-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(245,200,66,.3);padding:4px 10px;background:var(--gold3)}
+.hero-h1{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:2px;line-height:1.02;color:var(--txt);margin-bottom:14px}
+.hero-h1 em{color:var(--gold);font-style:normal;text-shadow:0 0 24px rgba(245,200,66,.4)}
+.hero-lead{font-size:15px;color:var(--txt2);line-height:1.7;margin-bottom:16px;max-width:520px;font-weight:400}
+.hero-byline{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;display:flex;gap:16px;flex-wrap:wrap}
+.hero-byline em{color:var(--gold);font-style:normal}
+.hero-rail{display:flex;flex-direction:column;gap:2px}
+.rail-card{background:var(--card);padding:20px;cursor:pointer;transition:all .18s;border-left:3px solid transparent;flex:1;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.rail-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.04),transparent);pointer-events:none}
+.rail-card:hover{background:var(--card2);border-left-color:var(--purple)}
+.rail-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--purple);opacity:.5;line-height:1}
+.rail-cat{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.rail-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;line-height:1.25;color:var(--txt)}
+.rail-meta{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);margin-top:auto}
 
-    /* ── LOADING ── */
-    .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 20px;
-      gap: 20px;
-    }
-    .loading-spinner {
-      width: 48px; height: 48px;
-      border: 3px solid var(--border);
-      border-top-color: var(--gold);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1em;
-      letter-spacing: 3px;
-      color: var(--muted);
-    }
+/* LAYOUT */
+.content-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;margin-bottom:40px}
 
-    /* ── NEWS GRID ── */
-    .news-section { padding: 32px; }
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3em;
-      letter-spacing: 3px;
-      color: var(--gold);
-      margin-bottom: 24px;
-      border-left: 3px solid var(--gold);
-      padding-left: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .news-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 22px;
-    }
+/* FILTER BAR */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.fb{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3);border:1px solid transparent;padding:5px 14px;cursor:pointer;background:transparent;transition:all .15s}
+.fb:hover,.fb.on{color:var(--gold);border-color:rgba(245,200,66,.3);background:var(--gold3)}
 
-    /* ── CARD ── */
-    .news-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 22px;
-      box-shadow: var(--card-shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .news-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    .news-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(0,0,0,.6);
-      border-color: rgba(245,200,66,.35);
-    }
-    .news-card:hover::before { opacity: 1; }
+/* SECTION HEAD */
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sec-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--purple);border:1px solid var(--border2);padding:3px 8px;text-transform:uppercase;letter-spacing:1.5px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--txt)}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--purple3),transparent)}
+.sec-n{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3)}
 
-    .card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .card-cat {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .7em;
-      letter-spacing: 2px;
-      color: var(--gold);
-      background: rgba(245,200,66,.08);
-      border: 1px solid rgba(245,200,66,.2);
-      padding: 2px 10px;
-      border-radius: 2px;
-    }
-    .card-bias {
-      font-size: .68em;
-      padding: 2px 8px;
-      border-radius: 2px;
-      font-weight: 700;
-      letter-spacing: .5px;
-    }
-    .bias-neutro     { background: rgba(100,200,100,.12); color: #6ec87a; border: 1px solid rgba(100,200,100,.2); }
-    .bias-ocidente   { background: rgba(60,130,230,.12);  color: #6aa3f5; border: 1px solid rgba(60,130,230,.2); }
-    .bias-russia     { background: rgba(230,60,60,.12);   color: #f56a6a; border: 1px solid rgba(230,60,60,.2); }
+/* NEWS GRID */
+.news-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--border);margin-bottom:2px}
 
-    .news-card h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.25em;
-      color: var(--text);
-      letter-spacing: 1px;
-      line-height: 1.25;
-    }
-    .news-card p {
-      font-size: .875em;
-      color: var(--muted);
-      line-height: 1.65;
-      flex: 1;
-    }
+/* NEWS CARD */
+.ncard{background:var(--card);padding:20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;animation:fadeUp .45s ease both}
+.ncard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .22s}
+.ncard:hover{background:var(--card2)}
+.ncard:hover::after{transform:scaleX(1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-      flex-wrap: wrap;
-    }
-    .btn-read {
-      flex: 1;
-      background: linear-gradient(90deg, var(--gold2), var(--gold));
-      color: var(--bg);
-      border: none;
-      padding: 10px 0;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .95em;
-      letter-spacing: 2px;
-      cursor: pointer;
-      border-radius: 4px;
-      text-decoration: none;
-      text-align: center;
-      display: block;
-      transition: opacity .2s;
-    }
-    .btn-read:hover { opacity: .85; }
-    .btn-share {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 10px 14px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: .85em;
-      transition: all .2s;
-      white-space: nowrap;
-    }
-    .btn-share:hover { border-color: var(--gold); color: var(--gold); }
+.nsource{font-family:'JetBrains Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:2px;padding:2px 7px;border:1px solid;display:inline-flex;width:fit-content}
+.s-rt{color:#ff7070;border-color:rgba(255,112,112,.22)}
+.s-al{color:#5ecfdf;border-color:rgba(94,207,223,.22)}
+.s-tass{color:#ffc55e;border-color:rgba(255,197,94,.22)}
+.s-xinhua{color:#ff6b5e;border-color:rgba(255,107,94,.22)}
+.s-sputnik{color:#c97ddf;border-color:rgba(201,125,223,.22)}
+.ncard-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ntime{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3)}
+.ncat{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--gold);text-transform:uppercase;letter-spacing:1px}
+.ntitle{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;line-height:1.2;color:var(--txt)}
+.nbody{font-size:13px;color:var(--txt2);line-height:1.65;flex:1;font-weight:400}
+.ntags{display:flex;gap:5px;flex-wrap:wrap}
+.ntag{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);border:1px solid var(--border);padding:1px 6px;text-transform:uppercase}
+.nmore{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--purple);letter-spacing:1px;margin-top:4px;text-transform:uppercase}
 
-    /* Blur para paywall */
-    .news-blur {
-      filter: blur(6px);
-      pointer-events: none;
-      user-select: none;
-    }
-    .news-blur::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(10,10,15,.5);
-      z-index: 2;
-    }
+/* BIAS BADGE */
+.bias-badge{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border:1px solid;display:inline-flex;width:fit-content}
+.bias-russia{color:#ff7070;border-color:rgba(255,112,112,.3);background:rgba(255,112,112,.06)}
+.bias-ocidente{color:#5ecfdf;border-color:rgba(94,207,223,.3);background:rgba(94,207,223,.06)}
+.bias-neutro{color:var(--txt3);border-color:var(--border);background:transparent}
 
-    /* ── SEÇÃO APOIE ── */
-    .support-section {
-      margin: 10px 32px 40px;
-      background: linear-gradient(135deg, var(--bg3), var(--bg2));
-      border: 1px solid var(--border);
-      border-top: 3px solid var(--gold);
-      border-radius: 8px;
-      padding: 40px;
-      text-align: center;
-    }
-    .support-section h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2em;
-      color: var(--gold);
-      letter-spacing: 3px;
-      margin-bottom: 12px;
-    }
-    .support-section p { color: var(--muted); font-size: .95em; line-height: 1.7; margin-bottom: 8px; }
-    .btn-apoie {
-      display: inline-block;
-      margin-top: 20px;
-      background: linear-gradient(90deg, var(--gold2), var(--gold));
-      color: var(--bg);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2em;
-      letter-spacing: 3px;
-      padding: 14px 40px;
-      border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      transition: opacity .2s;
-    }
-    .btn-apoie:hover { opacity: .85; }
+/* O OUTRO LADO — card preview */
+.card-outro{background:rgba(245,200,66,0.05);border:1px dashed rgba(245,200,66,0.25);padding:10px 12px;margin-top:4px}
+.card-outro-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.card-outro-body{font-size:11px;color:#b0a580;line-height:1.55}
 
-    /* ── COLABORADORES ── */
-    .colab-section {
-      margin: 0 32px 40px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 32px;
-    }
-    .colab-section h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4em;
-      color: var(--gold);
-      letter-spacing: 3px;
-      margin-bottom: 8px;
-    }
-    .colab-section p { color: var(--muted); font-size: .88em; margin-bottom: 20px; }
-    .colab-form { display: flex; gap: 10px; flex-wrap: wrap; }
-    .colab-input {
-      flex: 1;
-      min-width: 220px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: 4px;
-      font-size: .9em;
-      font-family: 'Open Sans', sans-serif;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .colab-input:focus { border-color: var(--gold); }
-    .btn-colab {
-      background: transparent;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1em;
-      letter-spacing: 2px;
-      padding: 12px 24px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .btn-colab:hover { background: var(--gold); color: var(--bg); }
-    .colab-msg { margin-top: 10px; font-size: .85em; color: var(--gold); min-height: 20px; }
+/* O OUTRO LADO — artigo */
+.outro-lado{background:linear-gradient(135deg,rgba(245,200,66,0.07),rgba(139,92,246,0.05));border:1px dashed rgba(245,200,66,0.3);border-left:3px solid var(--gold);padding:20px 22px;margin-bottom:24px}
+.outro-lado-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--gold);margin-bottom:10px}
+.outro-lado-body{font-size:14px;color:#c8b870;line-height:1.75}
+.outro-lado-loading{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,200,66,0.4);font-style:italic;animation:blink 1.5s ease infinite}
 
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      text-align: center;
-      padding: 28px 20px;
-      font-size: .82em;
-    }
-    footer a { color: var(--gold); text-decoration: none; }
+/* LOCKED */
+.ncard-locked{cursor:default}
+.ncard-locked:hover::after{transform:scaleX(0)}
+.lock-cover{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,var(--card) 40%);padding:20px 16px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.lock-txt{font-size:11px;color:var(--txt2);line-height:1.4;font-weight:500}
+.lock-btn{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid var(--border2);padding:7px 16px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;cursor:pointer;transition:all .2s;width:100%;margin-top:2px}
+.lock-btn:hover{background:rgba(139,92,246,.3)}
+.free-badge{position:absolute;top:12px;right:12px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#10b981;font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 7px;text-transform:uppercase;letter-spacing:1px}
 
-    /* ── SCROLL TOP ── */
-    #scrollTop {
-      position: fixed;
-      bottom: 24px; right: 24px;
-      background: var(--gold);
-      color: var(--bg);
-      width: 46px; height: 46px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3em;
-      text-decoration: none;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-      z-index: 200;
-      box-shadow: 0 4px 16px rgba(245,200,66,.3);
-    }
-    #scrollTop.show { opacity: 1; pointer-events: all; }
+/* SKELETON */
+.skel{animation:sk 1.5s ease-in-out infinite}
+@keyframes sk{0%,100%{opacity:.12}50%{opacity:.3}}
+.skel-line{background:rgba(139,92,246,.2);margin-bottom:8px}
 
-    /* ── PAYWALL OVERLAY ── */
-    .paywall-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.94);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      animation: fadeIn .3s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .paywall-box {
-      background: var(--bg2);
-      border: 1px solid rgba(245,200,66,.35);
-      border-top: 3px solid var(--gold);
-      max-width: 420px; width: 100%;
-      padding: 40px 36px;
-      text-align: center;
-      border-radius: 6px;
-      animation: slideUp .3s ease;
-    }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .paywall-box .icon { font-size: 52px; margin-bottom: 12px; }
-    .paywall-box h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2em;
-      letter-spacing: 4px;
-      color: var(--gold);
-      margin-bottom: 10px;
-    }
-    .paywall-box p { color: var(--muted); font-size: .9em; line-height: 1.6; margin-bottom: 24px; }
-    .paywall-box button {
-      width: 100%;
-      background: linear-gradient(90deg, var(--gold2), var(--gold));
-      color: var(--bg);
-      border: none;
-      padding: 14px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2em;
-      letter-spacing: 3px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: opacity .2s;
-    }
-    .paywall-box button:hover { opacity: .85; }
+/* EMPTY */
+.empty-state{grid-column:1/-1;padding:64px;text-align:center;border:1px dashed var(--border2)}
+.empty-ico{font-size:36px;margin-bottom:12px;opacity:.3}
+.empty-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--txt2);margin-bottom:8px}
+.empty-s{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);line-height:2;text-transform:uppercase;letter-spacing:1px}
 
-    /* ── POPUP BOAS-VINDAS ── */
-    .welcome-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.88);
-      z-index: 9998;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      animation: fadeIn .4s ease;
-    }
-    .welcome-box {
-      background: var(--bg2);
-      border: 1px solid rgba(245,200,66,.35);
-      border-top: 3px solid var(--gold);
-      max-width: 440px; width: 100%;
-      padding: 40px 36px;
-      text-align: center;
-      border-radius: 6px;
-      animation: slideUp .4s ease;
-      position: relative;
-    }
-    .welcome-box .close-btn {
-      position: absolute;
-      top: 12px; right: 16px;
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1.4em;
-      cursor: pointer;
-      transition: color .2s;
-    }
-    .welcome-box .close-btn:hover { color: var(--text); }
-    .welcome-badge {
-      background: linear-gradient(90deg, var(--gold2), var(--gold));
-      color: var(--bg);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .8em;
-      letter-spacing: 3px;
-      padding: 4px 16px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 16px;
-    }
-    .welcome-box h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.9em;
-      letter-spacing: 3px;
-      color: var(--gold);
-      margin-bottom: 10px;
-    }
-    .welcome-box p { color: var(--muted); font-size: .9em; line-height: 1.6; margin-bottom: 16px; }
-    .countdown-wrap { margin: 16px 0; }
-    .countdown-label { font-size: .75em; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
-    .countdown-time {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.4em;
-      color: var(--red);
-      letter-spacing: 4px;
-    }
-    .welcome-box button {
-      width: 100%;
-      background: linear-gradient(90deg, var(--gold2), var(--gold));
-      color: var(--bg);
-      border: none;
-      padding: 14px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1em;
-      letter-spacing: 3px;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-top: 8px;
-      transition: opacity .2s;
-    }
-    .welcome-box button:hover { opacity: .85; }
-    .welcome-skip {
-      display: block;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: .78em;
-      cursor: pointer;
-      text-decoration: underline;
-      background: none;
-      border: none;
-      transition: color .2s;
-    }
-    .welcome-skip:hover { color: var(--text); }
+/* STATUS BAR */
+#statusBar{display:none;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);padding:8px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#a89ec9;border-left:3px solid var(--purple)}
 
-    /* ── TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 80px; right: 24px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
-      color: var(--text);
-      padding: 14px 20px;
-      font-size: .85em;
-      border-radius: 4px;
-      z-index: 9000;
-      max-width: 320px;
-      box-shadow: var(--card-shadow);
-      animation: slideInRight .3s ease;
-    }
-    @keyframes slideInRight {
-      from { transform: translateX(120%); opacity: 0; }
-      to   { transform: translateX(0);    opacity: 1; }
-    }
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:20px}
+.widget{background:var(--card);border:1px solid var(--border)}
+.widget-hd{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(139,92,246,.06),transparent)}
+.widget-icon{font-size:13px}
+.widget-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--txt)}
+.urg-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.urg-item:last-child{border-bottom:none}
+.urg-item:hover{background:var(--glow)}
+.urg-n{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--purple);opacity:.6;flex-shrink:0;line-height:1;padding-top:2px}
+.urg-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:var(--txt);line-height:1.35;margin-bottom:3px}
+.urg-time{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3)}
+.cot-wrap{padding:12px}
+.cot-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--border);margin-bottom:6px;background:rgba(0,0,0,.25)}
+.cot-item:last-child{margin-bottom:0}
+.cot-name{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
+.cot-unit{font-size:7px;color:var(--txt3);display:block;margin-top:1px}
+.cot-price{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--txt);display:block;letter-spacing:1px}
+.cot-chg{font-family:'JetBrains Mono',monospace;font-size:8px;display:block;text-align:right}
+.up{color:#10b981}.dn{color:#ef4444}
+.hot-tags{padding:14px;display:flex;flex-wrap:wrap;gap:6px}
+.htag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);border:1px solid var(--border);padding:3px 10px;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:1px}
+.htag:hover{color:var(--gold);border-color:rgba(245,200,66,.3);background:var(--gold3)}
 
-    /* ── RESPONSIVO ── */
-    @media (max-width: 640px) {
-      header { padding: 12px 16px; flex-direction: column; gap: 10px; }
-      nav { gap: 14px; flex-wrap: wrap; justify-content: center; }
-      .hero { padding: 40px 16px; }
-      .news-section { padding: 20px 16px; }
-      .support-section, .colab-section { margin-left: 16px; margin-right: 16px; padding: 24px 18px; }
-      .cat-bar { padding: 12px 16px; }
-    }
-  </style>
+/* PLANOS */
+.planos-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.plano{padding:20px;border:1px solid;position:relative;overflow:hidden}
+.plano-gratis{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.25)}
+.plano-premium{background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(245,200,66,.06));border-color:rgba(139,92,246,.4);box-shadow:0 0 24px rgba(139,92,246,.1)}
+.plano-premium::before{content:'⭐ MAIS POPULAR';position:absolute;top:12px;right:12px;background:var(--gold);color:#0a0a0f;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;padding:2px 8px}
+.plano-icon{font-size:28px;margin-bottom:8px;display:block}
+.plano-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:2px}
+.plano-gratis .plano-name{color:#10b981}
+.plano-premium .plano-name{background:linear-gradient(90deg,var(--purple),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.plano-price{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--txt);line-height:1;margin-bottom:4px}
+.plano-price span{font-size:14px;color:var(--txt3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;font-weight:400;-webkit-text-fill-color:var(--txt3)}
+.plano-period{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;display:block}
+.plano-items{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.plano-items li{font-size:12px;color:var(--txt2);display:flex;align-items:flex-start;gap:7px;font-weight:500;line-height:1.4}
+.plano-items li::before{content:'✓';font-size:12px;font-weight:900;flex-shrink:0;margin-top:1px}
+.plano-gratis .plano-items li::before{color:#10b981}
+.plano-premium .plano-items li::before{color:var(--gold)}
+.plano-items li.no{color:var(--txt3)}
+.plano-items li.no::before{content:'✗';color:var(--txt3)}
+.plano-cta{width:100%;border:none;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.plano-gratis .plano-cta{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+.plano-premium .plano-cta{background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+.plano-premium .plano-cta:hover{box-shadow:0 6px 24px rgba(139,92,246,.5);transform:translateY(-1px)}
+
+/* ARTIGO */
+#articleView{display:none;padding:28px 0 48px}
+.art-wrap{max-width:1340px;margin:0 auto;padding:0 28px}
+.art-back{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;cursor:pointer;margin-bottom:24px;border:1px solid var(--border);padding:7px 14px;transition:all .18s;background:transparent}
+.art-back:hover{color:var(--purple);border-color:var(--border2)}
+.art-layout{display:grid;grid-template-columns:1fr 280px;gap:40px;align-items:start}
+.art-hd{border-bottom:1px solid var(--border);padding-bottom:24px;margin-bottom:28px}
+.art-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.art-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(245,200,66,.3);padding:4px 10px;background:var(--gold3)}
+.art-src-chip{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;padding:4px 10px;border:1px solid}
+.art-src-chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.art-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:2px;line-height:1.05;color:var(--txt);margin-bottom:16px}
+.art-subtitle{font-size:16px;color:var(--txt2);line-height:1.75;border-left:3px solid var(--purple);padding-left:16px;margin-bottom:20px;font-weight:500}
+.art-meta-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.art-date{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px}
+.art-reads{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3)}
+.art-share{display:flex;gap:6px;flex-wrap:wrap}
+.sbtn{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt2);border:1px solid var(--border);padding:5px 12px;cursor:pointer;background:transparent;transition:all .15s;text-transform:uppercase;letter-spacing:1px}
+.sbtn:hover{color:var(--purple);border-color:var(--border2)}
+.sbtn.locked{opacity:.35;cursor:not-allowed}
+.sbtn.locked::after{content:' 🔒';font-size:8px}
+.art-warn{display:flex;gap:10px;align-items:flex-start;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-left:3px solid #ef4444;padding:12px 16px;margin-bottom:24px}
+.art-warn-ico{font-size:16px;flex-shrink:0}
+.art-warn-txt{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,100,100,.7);text-transform:uppercase;letter-spacing:1px;line-height:1.8}
+.art-unlocked-badge{display:none;align-items:center;gap:6px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);font-family:'JetBrains Mono',monospace;font-size:7px;color:#10b981;padding:4px 10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.art-body-wrap{position:relative}
+.art-body-blur .art-body{-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent 80%);mask-image:linear-gradient(180deg,#000 20%,transparent 80%);pointer-events:none;user-select:none}
+.art-body{font-size:15px;color:var(--txt2);line-height:1.9;margin-bottom:24px;font-weight:400}
+.art-body p{margin-bottom:18px}
+.art-body p:first-child::first-letter{font-family:'Bebas Neue',sans-serif;font-size:58px;float:left;line-height:.8;margin-right:10px;color:var(--purple);padding-top:10px;text-shadow:0 0 20px rgba(139,92,246,.5)}
+.art-lock-wall{background:linear-gradient(180deg,transparent,var(--card) 28%);padding:48px 24px 36px;text-align:center;margin-top:-100px;position:relative}
+.art-lock-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:var(--txt);margin-bottom:8px}
+.art-lock-sub{font-size:14px;color:var(--txt2);line-height:1.7;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto}
+.art-lock-perks{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;max-width:300px;margin-left:auto;margin-right:auto;text-align:left}
+.art-lock-perk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt2);font-weight:500}
+.art-lock-perk::before{content:'✓';color:var(--purple);font-weight:900;font-size:14px;flex-shrink:0}
+.art-lock-cta{background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;border:none;padding:14px 36px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;transition:all .2s;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(139,92,246,.3)}
+.art-lock-cta:hover{box-shadow:0 6px 32px rgba(139,92,246,.5);transform:translateY(-1px)}
+.art-lock-note{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-top:12px;line-height:1.8}
+.art-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.atag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--purple);border:1px solid var(--border2);padding:3px 10px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .15s}
+.atag:hover{background:var(--glow)}
+.art-source-box{background:var(--card2);border:1px solid var(--border2);border-top:2px solid var(--gold);padding:22px;margin-bottom:24px}
+.art-source-box h4{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.art-source-box p{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:16px}
+.art-source-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--txt);display:block;margin-bottom:6px}
+.art-source-desc{font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:16px;display:block}
+.btn-source{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:10px 20px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:all .18s}
+.btn-source:hover{background:var(--gold3)}
+.art-disclaimer{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);line-height:1.8;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.art-related-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--txt);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.art-related-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s}
+.art-related-item:last-child{border-bottom:none}
+.art-related-item:hover .ar-title{color:var(--purple)}
+.ar-n{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--purple);opacity:.5;flex-shrink:0;line-height:1}
+.ar-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.5px;color:var(--txt);line-height:1.3;transition:color .15s}
+.ar-cat{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);text-transform:uppercase;margin-top:3px}
+
+/* COLABORADORES */
+.colab-section{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--purple);padding:24px 28px;margin:20px 0}
+.colab-section h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--txt);margin-bottom:8px}
+.colab-section p{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.6}
+.colab-form{display:flex;gap:8px;flex-wrap:wrap}
+.colab-input{flex:1;min-width:200px;background:rgba(0,0,0,.3);border:1px solid var(--border2);color:var(--txt);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .18s}
+.colab-input:focus{border-color:var(--purple)}
+.btn-colab{background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;border:none;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.btn-colab:hover{box-shadow:0 4px 16px rgba(139,92,246,.4)}
+.colab-msg{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);margin-top:8px;min-height:16px}
+
+/* PIX */
+.pix-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.pix-overlay.open{display:flex}
+.pix-box{background:var(--card);border:1px solid var(--border2);border-top:3px solid var(--purple);max-width:500px;width:100%;padding:32px;text-align:center;position:relative}
+.pix-close{position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--txt2);width:28px;height:28px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pix-close:hover{border-color:var(--purple);color:var(--purple)}
+.pix-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--txt);margin-bottom:6px}
+.pix-sub{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:24px}
+.pix-link{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--purple);border:1px solid var(--border2);padding:8px 16px;text-decoration:none;transition:all .18s;margin-top:12px}
+.pix-link:hover{background:var(--glow)}
+.pix-note{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-top:12px;line-height:1.8}
+
+/* WELCOME POPUP */
+.welcome-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px}
+.welcome-box{background:var(--card);border:1px solid var(--border2);border-top:3px solid var(--gold);max-width:440px;width:100%;padding:36px;text-align:center;position:relative}
+.welcome-badge{display:inline-block;background:var(--gold);color:#0a0a0f;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;padding:3px 12px;margin-bottom:14px}
+.welcome-box h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:var(--txt);margin-bottom:10px}
+.welcome-box p{font-size:14px;color:var(--txt2);line-height:1.7;margin-bottom:20px}
+.countdown-wrap{background:rgba(0,0,0,.3);border:1px solid var(--border2);padding:12px;margin-bottom:20px}
+.countdown-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
+.countdown-time{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:4px;color:var(--gold)}
+.welcome-box button{width:100%;background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;margin-bottom:10px;transition:all .2s}
+.welcome-box button:hover{box-shadow:0 4px 20px rgba(139,92,246,.5)}
+.welcome-skip{background:transparent !important;border:1px solid var(--border) !important;color:var(--txt3) !important;font-size:12px !important;letter-spacing:1px !important;padding:8px !important}
+.close-btn{position:absolute;top:12px;right:12px;background:transparent;border:1px solid var(--border);color:var(--txt3);width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.close-btn:hover{border-color:var(--purple);color:var(--purple)}
+
+/* PAYWALL */
+.paywall-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px}
+.paywall-box{background:var(--card);border:1px solid var(--border2);border-top:3px solid var(--purple);max-width:440px;width:100%;padding:40px;text-align:center}
+.paywall-box .icon{font-size:48px;margin-bottom:12px}
+.paywall-box h2{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:var(--txt);margin-bottom:12px}
+.paywall-box p{font-size:14px;color:var(--txt2);line-height:1.7;margin-bottom:24px}
+.paywall-box button{width:100%;background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;margin-bottom:10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--green);color:var(--txt);padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;z-index:1000;letter-spacing:1px;animation:fadeUp .3s ease}
+
+/* ADMIN */
+#adminPanel{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,15,.97);border-top:1px solid var(--border2);padding:10px 28px;z-index:900;font-family:'JetBrains Mono',monospace;font-size:8px}
+#adminPanel.open{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.adm-log{flex:1;color:var(--purple);font-size:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.adm-bar-wrap{width:160px;height:2px;background:rgba(139,92,246,.1)}
+.adm-bar{height:100%;background:linear-gradient(90deg,var(--purple2),var(--purple));width:0%;transition:width .3s}
+.adm-btn{background:linear-gradient(90deg,var(--purple2),var(--purple));color:#fff;border:none;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:1px}
+.adm-close{background:transparent;border:1px solid var(--border);color:var(--txt3);padding:4px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:8px}
+
+/* DEBUG */
+.debug-btn-show{position:fixed;bottom:10px;right:10px;background:rgba(139,92,246,.15);border:1px solid var(--border2);color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:8px;padding:5px 10px;cursor:pointer;z-index:800;letter-spacing:1px}
+.debug-panel{position:fixed;bottom:0;right:0;width:360px;max-height:220px;background:rgba(10,10,15,.97);border:1px solid var(--border2);border-top:2px solid var(--purple);z-index:800;font-family:'JetBrains Mono',monospace;font-size:9px}
+.debug-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--purple)}
+.debug-close{background:transparent;border:none;color:var(--txt3);cursor:pointer;font-size:12px}
+.debug-body{max-height:170px;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:3px}
+.debug-line{padding:2px 0;border-bottom:1px solid rgba(139,92,246,.06)}
+.debug-line.ok{color:#10b981}.debug-line.err{color:#ef4444}.debug-line.info{color:var(--txt3)}
+
+/* FOOTER */
+footer{background:var(--card);border-top:1px solid var(--border);position:relative;z-index:1}
+.footer-inner{max-width:1340px;margin:0 auto;padding:40px 28px 20px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.footer-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--txt);margin-bottom:4px}
+.footer-name span{color:var(--gold);text-shadow:0 0 16px rgba(245,200,66,.4)}
+.footer-sub{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--txt3);letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:14px}
+.footer-about{font-size:13px;color:var(--txt2);line-height:1.75}
+.footer-col h4{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+.footer-col ul{list-style:none}
+.footer-col li{font-size:13px;color:var(--txt2);padding:4px 0;cursor:pointer;transition:color .15s}
+.footer-col li:hover{color:var(--purple)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px}
+.footer-signal{display:flex;align-items:center;gap:6px;color:var(--purple)}
+.scroll-top{position:fixed;bottom:28px;right:28px;background:rgba(10,10,15,.9);border:1px solid var(--border2);color:var(--purple);width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:300;opacity:0;pointer-events:none;transition:all .18s;font-size:14px}
+.scroll-top.show{opacity:1;pointer-events:all}
+.scroll-top:hover{background:var(--purple2);color:#fff;border-color:var(--purple)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .hero{grid-template-columns:1fr}.hero-rail{flex-direction:row}
+  .rail-card{flex:1}
+  .content-layout{grid-template-columns:1fr}
+  .news-grid{grid-template-columns:1fr}
+  .art-layout{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .hero-rail{flex-direction:column}
+  .footer-grid{grid-template-columns:1fr}
+  .art-title{font-size:30px}
+  .header-right .update-time{display:none}
+  .planos-wrap{grid-template-columns:1fr}
+  .hero-h1{font-size:32px}
+  .wrap{padding:0 16px}
+}
+</style>
 </head>
 <body>
 
 <!-- TICKER -->
-<div class="ticker-wrap">
-  <span class="ticker-inner" id="ticker-text">
-    ⚡ BRASIL SEM CENSURA &nbsp;•&nbsp; INFORMAÇÃO SOBERANA, SEM FILTROS &nbsp;•&nbsp; CARREGANDO ÚLTIMAS NOTÍCIAS... &nbsp;•&nbsp;
-  </span>
+<div class="ticker">
+  <span class="ticker-badge">⚡ AO VIVO</span>
+  <div class="ticker-inner" id="tickerInner">
+    <span class="ticker-item">Brasil fecha acordo histórico de semicondutores com China e União Europeia</span>
+    <span class="ticker-item">BRICS: 47% do comércio já sem dólar — hegemonia americana em queda</span>
+    <span class="ticker-item">Embraer assina maior contrato aeronáutico da história brasileira</span>
+    <span class="ticker-item">Pré-sal bate recorde — 4 milhões de barris por dia</span>
+    <span class="ticker-item">Submarino nuclear Álvaro Alberto conclui testes com sucesso</span>
+    <span class="ticker-item">O que a mídia ocidental esconde sobre os conflitos no mundo</span>
+    <span class="ticker-item">Brasil fecha acordo histórico de semicondutores com China e União Europeia</span>
+    <span class="ticker-item">BRICS: 47% do comércio já sem dólar — hegemonia americana em queda</span>
+    <span class="ticker-item">Embraer assina maior contrato aeronáutico da história brasileira</span>
+    <span class="ticker-item">Pré-sal bate recorde — 4 milhões de barris por dia</span>
+    <span class="ticker-item">Submarino nuclear Álvaro Alberto conclui testes com sucesso</span>
+    <span class="ticker-item">O que a mídia ocidental esconde sobre os conflitos no mundo</span>
+  </div>
 </div>
 
 <!-- HEADER -->
 <header>
-  <div class="logo-wrap">
-    <div class="logo">BRASIL SEM CENSURA</div>
-    <span class="live-tag">⚡ AO VIVO</span>
+  <div class="header-inner">
+    <div class="logo" onclick="goHome()">
+      <svg class="logo-icon" viewBox="0 0 50 50" fill="none">
+        <rect x="1" y="1" width="48" height="48" rx="4" stroke="#8b5cf6" stroke-width="1.5"/>
+        <polygon points="25,5 46,25 25,45 4,25" fill="none" stroke="#f5c842" stroke-width="1.5"/>
+        <circle cx="25" cy="25" r="10" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+        <circle cx="25" cy="25" r="4" fill="#8b5cf6"/>
+        <line x1="25" y1="1" x2="25" y2="15" stroke="#8b5cf6" stroke-width="1" opacity=".5"/>
+        <line x1="25" y1="35" x2="25" y2="49" stroke="#8b5cf6" stroke-width="1" opacity=".5"/>
+        <line x1="1" y1="25" x2="15" y2="25" stroke="#8b5cf6" stroke-width="1" opacity=".5"/>
+        <line x1="35" y1="25" x2="49" y2="25" stroke="#8b5cf6" stroke-width="1" opacity=".5"/>
+      </svg>
+      <div>
+        <div class="logo-name">BRASIL <span>SEM</span> CENSURA</div>
+        <span class="logo-sub">Informação Soberana · Sem Filtros</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-pill"><div class="live-dot"></div>Ao Vivo</div>
+      <div class="update-time">Atualizado: <span id="lastUpdate">--</span></div>
+    </div>
   </div>
   <nav>
-    <a href="#" data-cat="Todos">Início</a>
-    <a href="#" data-cat="Geopolítica">Geopolítica</a>
-    <a href="#" data-cat="Economia">Economia</a>
-    <a href="#" data-cat="Tecnologia">Tecnologia</a>
-    <a href="#colab">Colaborar</a>
-    <a href="#apoie">Apoiar</a>
-    <span class="nav-update" id="lastUpdate"></span>
+    <div class="nav-inner">
+      <a class="active" onclick="navFilter('todos',this)">Notícias</a>
+      <a onclick="navFilter('Brasil',this)">🇧🇷 Brasil</a>
+      <a onclick="navFilter('Geopolitica',this)">Geopolítica</a>
+      <a onclick="navFilter('Tecnologia',this)">Tecnologia</a>
+      <a onclick="navFilter('Defesa',this)">Defesa</a>
+      <a onclick="navFilter('BRICS',this)">BRICS</a>
+      <a onclick="navFilter('Energia',this)">Energia</a>
+      <a onclick="navFilter('Economia',this)">Economia</a>
+    </div>
   </nav>
 </header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-label">PORTAL INDEPENDENTE</div>
-  <h1>Informação Soberana,<br>Sem Filtros, Sem Censura</h1>
-  <p>As notícias que a grande mídia não mostra, analisadas por inteligência artificial em tempo real.</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-num" id="stat-news">—</div>
-      <div class="hero-stat-label">Notícias hoje</div>
+<!-- HOME VIEW -->
+<div id="homeView">
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-main" id="heroMain">
+      <div class="hero-visual">
+        <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="g1" cx="25%" cy="70%" r="65%"><stop offset="0%" stop-color="rgba(139,92,246,0.14)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient>
+            <radialGradient id="g2" cx="80%" cy="30%" r="40%"><stop offset="0%" stop-color="rgba(245,200,66,0.06)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient>
+          </defs>
+          <rect width="800" height="460" fill="url(#g1)"/>
+          <rect width="800" height="460" fill="url(#g2)"/>
+          <g stroke="rgba(139,92,246,0.18)" stroke-width="1" fill="none">
+            <polyline points="0,230 100,230 100,115 260,115 260,230 480,230"/>
+            <polyline points="480,230 480,310 620,310 620,165 800,165"/>
+            <circle cx="100" cy="230" r="4" fill="rgba(139,92,246,.5)"/>
+            <circle cx="260" cy="115" r="4" fill="rgba(139,92,246,.5)"/>
+            <circle cx="480" cy="230" r="4" fill="rgba(139,92,246,.5)"/>
+            <circle cx="620" cy="310" r="4" fill="rgba(245,200,66,.6)"/>
+          </g>
+          <circle cx="660" cy="230" r="115" fill="none" stroke="rgba(139,92,246,0.12)" stroke-width="1"/>
+          <ellipse cx="660" cy="230" rx="115" ry="44" fill="none" stroke="rgba(139,92,246,0.07)" stroke-width=".5"/>
+          <circle cx="598" cy="268" r="6" fill="#8b5cf6"/>
+          <text x="584" y="286" fill="#8b5cf6" font-size="9" font-family="monospace">BR</text>
+          <circle cx="722" cy="202" r="5" fill="#f5c842"/>
+          <text x="710" y="220" fill="#f5c842" font-size="9" font-family="monospace">CN</text>
+          <circle cx="700" cy="165" r="5" fill="#f5c842"/>
+          <text x="688" y="183" fill="#f5c842" font-size="9" font-family="monospace">RU</text>
+          <line x1="598" y1="268" x2="722" y2="202" stroke="rgba(139,92,246,.4)" stroke-width="1" stroke-dasharray="4,3"><animate attributeName="stroke-dashoffset" values="0;-14" dur="2s" repeatCount="indefinite"/></line>
+          <line x1="598" y1="268" x2="700" y2="165" stroke="rgba(139,92,246,.3)" stroke-width="1" stroke-dasharray="4,3"><animate attributeName="stroke-dashoffset" values="0;-14" dur="2.6s" repeatCount="indefinite"/></line>
+          <line x1="722" y1="202" x2="700" y2="165" stroke="rgba(245,200,66,.15)" stroke-width=".5"/>
+        </svg>
+      </div>
+      <div class="hero-fade"></div>
+      <div class="hero-body">
+        <div class="hero-kicker">
+          <span class="kicker-urg"><div class="live-dot" style="background:#fff;box-shadow:none;width:5px;height:5px"></div>Urgente</span>
+          <span class="kicker-cat" id="heroCat">carregando...</span>
+        </div>
+        <h1 class="hero-h1" id="heroTitle">Buscando as principais notícias do mundo...</h1>
+        <p class="hero-lead" id="heroDesc">O sistema está coletando e traduzindo notícias agora. Aguarde alguns instantes.</p>
+        <div class="hero-byline"><em id="heroTime">--</em> · <em id="heroCat2">--</em></div>
+      </div>
     </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">9</div>
-      <div class="hero-stat-label">IAs em cascata</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">Real‑time</div>
-      <div class="hero-stat-label">Atualização</div>
+    <div class="hero-rail" id="heroStack">
+      <div class="rail-card"><div class="rail-num">02</div><div class="rail-cat">carregando...</div><div class="rail-title">Buscando...</div></div>
+      <div class="rail-card"><div class="rail-num">03</div><div class="rail-cat">carregando...</div><div class="rail-title">Buscando...</div></div>
+      <div class="rail-card"><div class="rail-num">04</div><div class="rail-cat">carregando...</div><div class="rail-title">Buscando...</div></div>
     </div>
   </div>
-</section>
 
-<!-- BARRA DE CATEGORIAS -->
-<div class="cat-bar" id="cat-bar">
-  <button class="cat-btn active" data-cat="Todos">Todos</button>
-  <button class="cat-btn" data-cat="Geopolítica">Geopolítica</button>
-  <button class="cat-btn" data-cat="Economia">Economia</button>
-  <button class="cat-btn" data-cat="Tecnologia">Tecnologia</button>
-  <button class="cat-btn" data-cat="Geral">Geral</button>
+  <div class="content-layout">
+    <div>
+
+      <!-- PLANOS -->
+      <div class="planos-wrap">
+        <div class="plano plano-gratis">
+          <span class="plano-icon">📰</span>
+          <div class="plano-name">Grátis</div>
+          <div class="plano-price">R$ 0<span>/mês</span></div>
+          <span class="plano-period">Sempre gratuito</span>
+          <ul class="plano-items">
+            <li>3 notícias completas por dia</li>
+            <li>Títulos de todas as notícias</li>
+            <li>Análise IA visível nos cards</li>
+            <li class="no">Notícias completas ilimitadas</li>
+            <li class="no">Compartilhar no WhatsApp</li>
+            <li class="no">Baixar com marca d'água</li>
+          </ul>
+          <button class="plano-cta" onclick="window.scrollTo({top:document.getElementById('newsFeed').offsetTop-100,behavior:'smooth'})">Continuar Grátis</button>
+        </div>
+        <div class="plano plano-premium">
+          <span class="plano-icon">⚡</span>
+          <div class="plano-name">Apoiador</div>
+          <div class="plano-price">R$ 10<span>/mês</span></div>
+          <span class="plano-period">30 dias de acesso total</span>
+          <ul class="plano-items">
+            <li>Notícias completas ilimitadas</li>
+            <li>Análise IA "O Outro Lado" completa</li>
+            <li>Compartilhar no WhatsApp</li>
+            <li>Compartilhar no Facebook</li>
+            <li>Baixar com marca d'água BSC</li>
+            <li>Suporte ao jornalismo livre</li>
+          </ul>
+          <button class="plano-cta" onclick="openPix()">⚡ Apoiar com Pix — R$ 10</button>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filter-bar">
+        <button class="fb on" onclick="filterCards('todos',this)">Todos</button>
+        <button class="fb" onclick="filterCards('Brasil',this)">🇧🇷 Brasil</button>
+        <button class="fb" onclick="filterCards('Geopolitica',this)">Geopolítica</button>
+        <button class="fb" onclick="filterCards('Tecnologia',this)">Tecnologia</button>
+        <button class="fb" onclick="filterCards('Defesa',this)">Defesa</button>
+        <button class="fb" onclick="filterCards('BRICS',this)">BRICS</button>
+        <button class="fb" onclick="filterCards('Energia',this)">Energia</button>
+        <button class="fb" onclick="filterCards('Economia',this)">Economia</button>
+      </div>
+
+      <div id="statusBar">⚡ <span id="statusMsg">Iniciando...</span></div>
+
+      <div class="sec-head">
+        <span class="sec-tag">Feed</span>
+        <h2 class="sec-title">Notícias</h2>
+        <div class="sec-line"></div>
+        <span class="sec-n" id="feedCount">carregando...</span>
+      </div>
+
+      <div class="news-grid" id="newsFeed">
+        <div class="ncard skel"><div class="skel-line" style="height:9px;width:50%"></div><div class="skel-line" style="height:16px;width:90%;margin-top:6px"></div><div class="skel-line" style="height:16px;width:75%"></div><div class="skel-line" style="height:10px;width:100%;margin-top:4px"></div><div class="skel-line" style="height:10px;width:80%"></div></div>
+        <div class="ncard skel"><div class="skel-line" style="height:9px;width:50%"></div><div class="skel-line" style="height:16px;width:90%;margin-top:6px"></div><div class="skel-line" style="height:16px;width:75%"></div><div class="skel-line" style="height:10px;width:100%;margin-top:4px"></div><div class="skel-line" style="height:10px;width:80%"></div></div>
+        <div class="ncard skel"><div class="skel-line" style="height:9px;width:50%"></div><div class="skel-line" style="height:16px;width:90%;margin-top:6px"></div><div class="skel-line" style="height:16px;width:75%"></div><div class="skel-line" style="height:10px;width:100%;margin-top:4px"></div><div class="skel-line" style="height:10px;width:80%"></div></div>
+        <div class="ncard skel"><div class="skel-line" style="height:9px;width:50%"></div><div class="skel-line" style="height:16px;width:90%;margin-top:6px"></div><div class="skel-line" style="height:16px;width:75%"></div><div class="skel-line" style="height:10px;width:100%;margin-top:4px"></div><div class="skel-line" style="height:10px;width:80%"></div></div>
+      </div>
+
+      <!-- COLABORADORES -->
+      <div class="colab-section" id="colab">
+        <h3>📡 Seja um Colaborador</h3>
+        <p>Você é assinante? Envie um link de notícia para ser analisado pela nossa IA. Juntos construímos a informação soberana.</p>
+        <div class="colab-form">
+          <input type="url" class="colab-input" id="colab-url" placeholder="Cole o link da notícia aqui...">
+          <button class="btn-colab" onclick="enviarColaboracao()">ENVIAR →</button>
+        </div>
+        <div class="colab-msg" id="colab-msg"></div>
+      </div>
+
+    </div><!-- /main col -->
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="widget">
+        <div class="widget-hd"><span class="widget-icon">⚡</span><span class="widget-title">Últimas Urgentes</span><div class="live-dot" style="margin-left:auto"></div></div>
+        <div id="urgentesList">
+          <div class="urg-item"><span class="urg-n">01</span><div><div class="urg-title">Carregando...</div><div class="urg-time">agora</div></div></div>
+          <div class="urg-item"><span class="urg-n">02</span><div><div class="urg-title">Carregando...</div><div class="urg-time">agora</div></div></div>
+          <div class="urg-item"><span class="urg-n">03</span><div><div class="urg-title">Carregando...</div><div class="urg-time">agora</div></div></div>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-hd"><span class="widget-icon">📊</span><span class="widget-title">Mercados</span></div>
+        <div class="cot-wrap">
+          <div class="cot-item"><div><div class="cot-name">Petróleo Brent</div><span class="cot-unit">USD / barril</span></div><div style="text-align:right"><span class="cot-price">$89.42</span><span class="cot-chg up">▲ +1.23%</span></div></div>
+          <div class="cot-item"><div><div class="cot-name">Dólar</div><span class="cot-unit">BRL / USD</span></div><div style="text-align:right"><span class="cot-price">R$4.87</span><span class="cot-chg dn">▼ -0.34%</span></div></div>
+          <div class="cot-item"><div><div class="cot-name">Yuan</div><span class="cot-unit">BRL / CNY</span></div><div style="text-align:right"><span class="cot-price">R$0.67</span><span class="cot-chg up">▲ +0.12%</span></div></div>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-hd"><span class="widget-icon">🔥</span><span class="widget-title">Tópicos em Alta</span></div>
+        <div class="hot-tags">
+          <span class="htag" onclick="filterCards('Tecnologia',null)">#Semicondutores</span>
+          <span class="htag" onclick="filterCards('BRICS',null)">#BRICS</span>
+          <span class="htag" onclick="filterCards('Defesa',null)">#Defesa</span>
+          <span class="htag" onclick="filterCards('Energia',null)">#PréSal</span>
+          <span class="htag">#Multipolaridade</span>
+          <span class="htag" onclick="filterCards('Geopolitica',null)">#Geopolitica</span>
+          <span class="htag">#SulGlobal</span>
+          <span class="htag">#Soberania</span>
+        </div>
+      </div>
+    </aside>
+  </div><!-- /content-layout -->
+
+</div><!-- /wrap -->
+</div><!-- /homeView -->
+
+<!-- ARTIGO VIEW -->
+<div id="articleView">
+<div class="art-wrap">
+  <button class="art-back" onclick="goHome()">← Voltar ao Feed</button>
+  <div class="art-layout">
+    <div class="art-main">
+      <div class="art-hd">
+        <div class="art-eyebrow">
+          <span class="art-cat" id="artCat">—</span>
+          <span class="art-src-chip" id="artSourceChip"><span class="dot"></span><span id="artSourceName">—</span></span>
+        </div>
+        <h1 class="art-title" id="artTitle">—</h1>
+        <p class="art-subtitle" id="artSubtitle">—</p>
+        <div class="art-meta-row">
+          <div style="display:flex;gap:16px;align-items:center">
+            <span class="art-date" id="artDate">—</span>
+            <span class="art-reads" id="artReads">—</span>
+          </div>
+          <div class="art-share">
+            <button class="sbtn" onclick="copyLink()">⎘ Copiar</button>
+            <button class="sbtn locked" id="btnShareWA">WhatsApp</button>
+            <button class="sbtn locked" id="btnShareFB">Facebook</button>
+            <button class="sbtn locked" id="btnShareDL">⬇ Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="art-unlocked-badge" id="artUnlockedBadge">✓ Acesso Completo Desbloqueado</div>
+      <div class="art-warn"><span class="art-warn-ico">⚠</span><div class="art-warn-txt">Este conteúdo pode incluir informações sobre vítimas civis, conflitos e guerra. Brasil Sem Censura não filtra a realidade. A informação é sua — tire suas próprias conclusões.</div></div>
+
+      <div class="art-body-wrap" id="artBodyWrap">
+        <div class="art-body" id="artBody">—</div>
+      </div>
+      <div id="artLockWall" class="art-lock-wall" style="display:none">
+        <div class="art-lock-title">🔒 CONTEÚDO EXCLUSIVO</div>
+        <div class="art-lock-sub">Você já leu suas <strong style="color:var(--gold)">3 notícias gratuitas</strong> de hoje.<br>Por apenas <strong style="color:var(--gold)">R$ 10</strong> você desbloqueia tudo por <strong style="color:var(--gold)">30 dias completos</strong>.</div>
+        <div class="art-lock-perks">
+          <div class="art-lock-perk">Leia todas as notícias completas — sem limite</div>
+          <div class="art-lock-perk">Compartilhe no WhatsApp com imagem</div>
+          <div class="art-lock-perk">Análise IA "O Outro Lado" completa</div>
+          <div class="art-lock-perk">30 dias de acesso total — não por notícia</div>
+        </div>
+        <button class="art-lock-cta" onclick="openPix()">⚡ DESBLOQUEAR 30 DIAS — R$ 10</button>
+        <div class="art-lock-note">🔒 Via LivePix · Anônimo · Sem cadastro · Pix instantâneo</div>
+      </div>
+
+      <div id="artOutroLado" class="outro-lado" style="display:none">
+        <div class="outro-lado-title">⚖ O OUTRO LADO — O que a mídia convencional omite</div>
+        <div class="outro-lado-body" id="artOutroLadoBody"></div>
+      </div>
+
+      <div class="art-tags" id="artTags"></div>
+      <div class="art-source-box">
+        <h4>Fonte Original</h4>
+        <p>Esta notícia foi coletada, traduzida e contextualizada a partir da fonte abaixo. Clique para ler o conteúdo original no idioma de origem — sem filtros do BSC.</p>
+        <span class="art-source-name" id="artSourceFull">—</span>
+        <span class="art-source-desc" id="artSourceDesc">—</span>
+        <a id="artSourceLink" href="#" target="_blank" rel="noopener" class="btn-source">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 2H2a1 1 0 00-1 1v7a1 1 0 001 1h7a1 1 0 001-1V7M7 1h4m0 0v4M11 1L5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Acessar Matéria Original
+        </a>
+        <div class="art-disclaimer">BSC não é afiliado a nenhuma das fontes. Traduzimos e contextualizamos conteúdo público. Você decide o que pensar.</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="position:sticky;top:120px">
+        <div class="art-related-title">Leia Também</div>
+        <div id="artRelated"></div>
+        <div class="widget" style="margin-top:24px">
+          <div class="widget-hd"><span class="widget-icon">📊</span><span class="widget-title">Mercados</span></div>
+          <div class="cot-wrap">
+            <div class="cot-item"><div><div class="cot-name">Petróleo</div><span class="cot-unit">USD/barril</span></div><div style="text-align:right"><span class="cot-price">$89.42</span><span class="cot-chg up">▲ +1.23%</span></div></div>
+            <div class="cot-item"><div><div class="cot-name">Dólar</div><span class="cot-unit">BRL/USD</span></div><div style="text-align:right"><span class="cot-price">R$4.87</span><span class="cot-chg dn">▼ -0.34%</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-<!-- NOTÍCIAS -->
-<section class="news-section">
-  <div class="section-title">
-    <span>ÚLTIMAS NOTÍCIAS</span>
-    <span style="font-size:.75em; color: var(--muted); letter-spacing:1px;" id="news-count"></span>
-  </div>
-  <div id="news-container" class="news-grid">
-    <!-- Loading -->
-    <div class="loading-state" style="grid-column:1/-1" id="loading-el">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">BUSCANDO NOTÍCIAS VIA IA...</div>
-    </div>
-  </div>
-</section>
-
-<!-- APOIE -->
-<section class="support-section" id="apoie">
-  <h2>Apoie o Portal</h2>
-  <p>Apoie com <strong style="color:var(--gold)">R$ 10</strong> e desbloqueie <strong style="color:var(--gold)">30 dias</strong> de acesso completo.</p>
-  <p>Leia tudo, compartilhe e baixe as notícias. Anônimo, via Pix.</p>
-  <p style="font-size:.8em; margin-top:8px;">🔒 Pagamento via Mercado Pago · Seus dados não são compartilhados com o portal</p>
-  <button class="btn-apoie" onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">APOIAR AGORA →</button>
-</section>
-
-<!-- COLABORADORES -->
-<section class="colab-section" id="colab">
-  <h2>📡 Seja um Colaborador</h2>
-  <p>Você é assinante? Envie um link de notícia para ser analisado pela nossa IA. Juntos construímos a informação soberana.</p>
-  <div class="colab-form">
-    <input type="url" class="colab-input" id="colab-url" placeholder="Cole o link da notícia aqui...">
-    <button class="btn-colab" onclick="enviarColaboracao()">ENVIAR →</button>
-  </div>
-  <div class="colab-msg" id="colab-msg"></div>
-</section>
+</div><!-- /articleView -->
 
 <!-- FOOTER -->
 <footer>
-  <p style="margin-bottom:6px; font-family:'Bebas Neue',sans-serif; font-size:1.2em; letter-spacing:3px; color:var(--gold);">BRASIL SEM CENSURA</p>
-  <p>&copy; 2026 Brasil Sem Censura. Todos os direitos reservados.</p>
-  <p style="margin-top:6px; font-size:.78em;">Informação verificada por IA · <a href="#apoie">Torne-se Premium</a> · <a href="#colab">Colaborar</a></p>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-name">BRASIL <span>SEM</span> CENSURA</div>
+        <span class="footer-sub">Informação Soberana · Desde 2024</span>
+        <p class="footer-about">Portal independente dedicado à soberania nacional, BRICS, tecnologia e geopolítica. Traduzimos e publicamos o que a grande mídia ignora. Sem filtros. Sem eufemismos. A realidade como ela é.</p>
+      </div>
+      <div class="footer-col"><h4>Seções</h4><ul><li>Notícias</li><li>Tecnologia</li><li>Geopolítica</li><li>Defesa &amp; Soberania</li><li>Brasil no BRICS</li></ul></div>
+      <div class="footer-col"><h4>Portal</h4><ul><li>Sobre Nós</li><li>Metodologia</li><li>Apoie</li><li>Contato</li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li>Privacidade</li><li>Termos de Uso</li><li>Transparência</li><li>LGPD</li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Brasil Sem Censura. Todos os direitos reservados.</span>
+      <div class="footer-signal"><div class="live-dot" style="width:5px;height:5px;background:var(--purple);box-shadow:0 0 8px var(--purple)"></div>Sinal Ativo · Soberano</div>
+    </div>
+  </div>
 </footer>
 
-<!-- SCROLL TOP -->
-<a href="#" id="scrollTop">↑</a>
+<!-- MODAL PIX -->
+<div class="pix-overlay" id="pixModal" onclick="closePixOverlay(event)">
+  <div class="pix-box">
+    <button class="pix-close" onclick="closePix()">✕</button>
+    <div class="pix-title">Apoie o Portal</div>
+    <p class="pix-sub">Apoie com <strong style="color:var(--gold)">R$ 10</strong> e desbloqueie <strong style="color:var(--gold)">30 dias</strong> de acesso completo.<br>Leia tudo, compartilhe e baixe as notícias. Anônimo, via Pix.</p>
+    <div id="pixIframeWrap"></div>
+    <a href="https://widget.livepix.gg/embed/53ff298c-566b-410f-8ea3-6f4f8afede2a" target="_blank" rel="noopener" class="pix-link">▶ Abrir LivePix em nova aba</a>
+    <div class="pix-note">🔒 Pagamento via LivePix · Seus dados não são compartilhados com o portal</div>
+  </div>
+</div>
 
-<!-- ══════════════════════════════════════════════════ -->
+<!-- DEBUG -->
+<button class="debug-btn-show" id="debugBtn" onclick="toggleDebug()">⚙</button>
+<div class="debug-panel" id="debugPanel" style="display:none">
+  <div class="debug-header"><span>⚙ Motor IA</span><button class="debug-close" onclick="toggleDebug()">✕</button></div>
+  <div class="debug-body" id="debugBody"><div class="debug-line info">Aguardando inicialização...</div></div>
+</div>
+
+<!-- ADMIN (Ctrl+Shift+A) -->
+<div id="adminPanel">
+  <span style="color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-size:8px">⚙ Motor IA</span>
+  <div class="adm-log" id="admLog">Pronto.</div>
+  <div class="adm-bar-wrap"><div class="adm-bar" id="admBar"></div></div>
+  <button class="adm-btn" onclick="startScan()">⚡ Buscar Agora</button>
+  <button class="adm-close" onclick="toggleAdmin()">✕</button>
+</div>
+
+<div class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</div>
+
 <script>
-  /* ── CONFIG ── */
-  const OWNER_SECRET = 'DKGEMERBR';
-  const OWNER_TOKEN  = 'YOUR_OWNER_TOKEN_HERE';
+// ══════════════════════════════
+// CONFIG
+// ══════════════════════════════
+const SITE_URL     = 'https://brasil-sem-censura.netlify.app';
+const OWNER_TOKEN  = 'owner_permanent_dkgemerbr_2024_bsc';
+const OWNER_SECRET = 'DKGEMERBR';
 
-  /* ── ESTADO ── */
-  let allNews        = [];
-  let filteredNews   = [];
-  let buscando       = false;
-  let newsReadCount  = parseInt(localStorage.getItem('bsc_read_count') || '0');
-  let currentCat     = 'Todos';
+const CAT_KW = {
+  'Tecnologia':  ['tech','chip','AI','digital','cyber','5G','software','space','semiconductor','deepseek','startup','inovação','innovation'],
+  'Geopolitica': ['war','conflict','sanction','NATO','nuclear','missile','attack','bombing','killed','civilian','diplomacy','treaty'],
+  'Defesa':      ['military','army','weapon','drone','combat','submarine','soldier','artillery','marinha','exército','força aérea'],
+  'BRICS':       ['BRICS','multipolar','dollar','yuan','ruble','global south','dedollar','sul global','parceria'],
+  'Energia':     ['oil','gas','energy','pipeline','OPEC','barrel','fuel','LNG','petróleo','petrobras','pré-sal','hidrelétrica'],
+  'Economia':    ['economy','trade','inflation','GDP','bank','market','tariff','recession','exportação','agronegócio','investimento','PIB'],
+  'Brasil':      ['brasil','brazil','lula','petrobras','embraer','amazônia','amazon','agro','soja','minério','real brasileiro'],
+};
 
-  /* ── UTILS ── */
-  const $ = id => document.getElementById(id);
-  function admLog(msg) { console.log(`[BSC] ${msg}`); }
-
-  function showToast(msg, duration = 3500) {
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), duration);
+// ══════════════════════════════
+// PRÉ-NEWS (fallback)
+// ══════════════════════════════
+const PRE_NEWS = (function(){
+  function n(id,titulo,subtitulo,p1,p2,p3,tags,categoria,source,cls,link,reads,impacto){
+    return {id,titulo,subtitulo,corpo:p1+'\n\n'+p2+'\n\n'+p3,tags,categoria,source,cls,link,
+      ts:Date.now()-reads*10,reads,impacto,
+      outro_lado:'Análise IA será carregada ao abrir o artigo.'};
   }
+  return [
+  n('p1','Guerra Irã x EUA-Israel: Mísseis Atingem Catar e Petróleo Passa de US$100',
+    '20 dias de conflito. Israel ataca campo de gás South Pars. Irã ameaça fechar Estreito de Ormuz.',
+    'No 20º dia do conflito, Israel atacou o campo de gás South Pars no Irã, o maior do mundo.',
+    'O petróleo ultrapassou US$ 100 o barril pela primeira vez desde 2022.',
+    'O Sul Global paga o preço: o Brasil vê combustíveis encarecer, a China perde fornecimento de gás.',
+    ['Irã','Israel','Petróleo'],'Geopolitica','Al Jazeera','s-al','https://aljazeera.com',89400,10),
+  n('p2','Trump Impõe Tarifas de 145% sobre China: Guerra Comercial Atinge Nível Histórico',
+    'Pequim ameaça cortar terras raras. Bolsas despencam. Brasil no meio do fogo cruzado.',
+    'O governo Trump elevou tarifas sobre produtos chineses para 145%, a maior escalada comercial da história.',
+    'Bolsas asiáticas despencaram: Hang Seng caiu 6%, Nikkei perdeu 4,8%.',
+    'O Brasil, que exporta para ambos os lados, precisa navegar com cuidado.',
+    ['Trump','China','Tarifas'],'Economia','BBC','s-al','https://bbc.com',52400,9),
+  n('p3','USP Cria Fábrica de Chips Brasileira: 60 Milhões por Ano e Soberania Tecnológica',
+    'PocketFab chega em abril 2026. Brasil sai da dependência de semicondutores asiáticos.',
+    'A Escola Politécnica da USP desenvolveu a PocketFab, microfábrica modular de chips.',
+    'Em 2025 o Brasil consumiu US$ 50 bilhões em chips importados.',
+    'A Ceitec, estatal resgatada por Lula, começa a fabricar chips de carbeto de silício.',
+    ['Chips','USP','Soberania'],'Brasil','Jornal USP','s-xinhua','https://jornal.usp.br',41200,9),
+  n('p4','BRICS Pay: 30% do Comércio Sul-Sul já Ocorre Sem o Dólar Americano',
+    '17 países aderiram em 2026. Brasil integra sistema e reduz dependência cambial.',
+    'O sistema BRICS Pay já processa 30% do comércio entre países do Sul Global sem passar pelo dólar.',
+    'O Brasil finalizou a integração em fevereiro de 2026.',
+    'Mais 17 países aderiram ao sistema, incluindo Turquia, Arábia Saudita e Nigéria.',
+    ['BRICS','Dolar','Dedolarizacao'],'BRICS','Xinhua','s-xinhua','https://xinhuanet.com',34200,8),
+  n('p5','Petrobras Bate Recorde: Brasil é o 4º Maior Produtor de Petróleo do Mundo',
+    '5 milhões de barris por dia no pré-sal. Nova descoberta pode dobrar reservas nacionais.',
+    'O Brasil ultrapassou o Canadá e se tornou o 4º maior produtor de petróleo do mundo em 2026.',
+    'Apesar do recorde, o consumidor brasileiro ainda paga preços internacionais.',
+    'A descoberta reforça o peso estratégico do Brasil no BRICS e nas negociações globais de energia.',
+    ['Petrobras','PreSal','Energia'],'Energia','Sputnik','s-sputnik','https://sputnikglobe.com',29100,7),
+  n('p6','IA Chinesa DeepSeek Supera ChatGPT: Nvidia Perde US$600bi em 1 Dia',
+    'Modelo open-source treinado por fração do custo americano. Silicon Valley em pânico.',
+    'O DeepSeek R2 chinês superou todos os benchmarks dos modelos americanos.',
+    'A Nvidia perdeu US$ 600 bilhões em um único pregão.',
+    'Para o Brasil e o Sul Global, o modelo open-source significa acesso gratuito a tecnologia de ponta.',
+    ['DeepSeek','IA','China'],'Tecnologia','DW','s-tass','https://dw.com',48900,9),
+  ];
+})();
 
-  /* ── CACHE ── */
-  function salvarCache(news) {
-    try {
-      localStorage.setItem('bsc_news_cache', JSON.stringify(news));
-      localStorage.setItem('bsc_news_cache_time', Date.now());
-    } catch(e) {}
-  }
-  function carregarCache() {
-    try {
-      const c = localStorage.getItem('bsc_news_cache');
-      return c ? JSON.parse(c) : [];
-    } catch(e) { return []; }
-  }
+// ══════════════════════════════
+// ESTADO
+// ══════════════════════════════
+let allNews       = [];
+let filtroAtual   = 'todos';
+let artigoAberto  = null;
+let buscando      = false;
+let newsReadCount = parseInt(localStorage.getItem('bsc_read_count') || '0');
 
-  /* ── TOKEN / PREMIUM ── */
-  function checkExpiry() {
-    const exp = localStorage.getItem('bsc_expires');
-    if (exp && Date.now() > parseInt(exp)) {
-      localStorage.removeItem('bsc_token');
-      localStorage.removeItem('bsc_expires');
-      admLog('Token expirado.');
-    }
-  }
-  function isUserPremium() {
-    const token   = localStorage.getItem('bsc_token');
-    const expires = localStorage.getItem('bsc_expires');
-    return !!(token && expires && Date.now() < parseInt(expires));
-  }
-  function checkURLToken() {
-    const p    = new URLSearchParams(window.location.search);
-    const dono = p.get('dono');
-    if (dono && dono.toUpperCase() === OWNER_SECRET) {
-      localStorage.setItem('bsc_token',   OWNER_TOKEN);
-      localStorage.setItem('bsc_expires', String(Date.now() + 99999 * 86400000));
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return 'owner';
-    }
-    const t = p.get('token'), e = p.get('expires');
-    if (t && e) {
-      localStorage.setItem('bsc_token',   t);
-      localStorage.setItem('bsc_expires', e);
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return 'paid';
-    }
-    return false;
-  }
+// ══════════════════════════════
+// UTILS
+// ══════════════════════════════
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts){ if(!ts)return'agora'; const m=Math.floor((Date.now()-ts)/60000); if(m<1)return'agora'; if(m<60)return`há ${m}min`; const h=Math.floor(m/60); if(h<24)return`há ${h}h`; return`há ${Math.floor(h/24)}d`; }
+function categorize(t,d){ const txt=(t+' '+d).toLowerCase(); for(const[cat,kws]of Object.entries(CAT_KW)) if(kws.some(k=>txt.includes(k))) return cat; return 'Geopolitica'; }
+function isUnlocked(){ const t=localStorage.getItem('bsc_token'); const e=parseInt(localStorage.getItem('bsc_expires')||'0'); return t===OWNER_TOKEN||(!!t&&e>Date.now()); }
 
-  /* ── CATEGORIZAR ── */
-  function categorize(titulo, resumo) {
-    const t = (titulo + ' ' + resumo).toLowerCase();
-    if (/guerra|geopolítica|otan|nato|conflito|diplomacia|ucrânia|rússia|china|israel|oriente médio/.test(t)) return 'Geopolítica';
-    if (/economia|inflação|dólar|mercado|pib|banco central|juros|fiscal|bolsa/.test(t))                      return 'Economia';
-    if (/tecnologia|inteligência artificial|ia|chip|cyber|hack|digital|software|startup/.test(t))            return 'Tecnologia';
-    return 'Geral';
-  }
+function showToast(msg, duration=3500){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), duration);
+}
 
-  /* ── BIAS BADGE ── */
-  function biasBadge(titulo, resumo) {
-    const t = (titulo + ' ' + resumo).toLowerCase();
-    if (/rússia|kremlin|moscou|putin/.test(t))        return '<span class="card-bias bias-russia">Pró-Rússia</span>';
-    if (/otan|nato|ocidente|washington|ue|europa/.test(t)) return '<span class="card-bias bias-ocidente">Pró-Ocidente</span>';
-    return '<span class="card-bias bias-neutro">Neutro</span>';
-  }
+// ══════════════════════════════
+// BIAS BADGE
+// ══════════════════════════════
+function biasBadge(titulo, resumo){
+  const t=(titulo+' '+(resumo||'')).toLowerCase();
+  if(/rússia|kremlin|moscou|putin|russia/.test(t))        return '<span class="bias-badge bias-russia">Pró-Rússia</span>';
+  if(/otan|nato|ocidente|washington|eu\b|europa/.test(t)) return '<span class="bias-badge bias-ocidente">Pró-Ocidente</span>';
+  return '<span class="bias-badge bias-neutro">Neutro</span>';
+}
 
-  /* ── RENDER ── */
-  function renderAll() {
-    const container = $('news-container');
-    if (!container) return;
+// ══════════════════════════════
+// CACHE
+// ══════════════════════════════
+function salvarCache(news){ try{ localStorage.setItem('bsc_cache',JSON.stringify(news.slice(0,20))); localStorage.setItem('bsc_cache_ts',Date.now()); }catch(e){} }
+function carregarCache(){
+  try{
+    const ts=parseInt(localStorage.getItem('bsc_cache_ts')||'0');
+    if(Date.now()-ts<30*60*1000){ const d=JSON.parse(localStorage.getItem('bsc_cache')||'[]'); if(d.length>0) return d; }
+  }catch(e){}
+  return PRE_NEWS;
+}
 
-    filteredNews = currentCat === 'Todos'
-      ? allNews
-      : allNews.filter(a => (a.categoria || categorize(a.titulo, a.resumo)) === currentCat);
+// ══════════════════════════════
+// IA
+// ══════════════════════════════
+function isPortugues(txt){
+  if(!txt) return true;
+  const ptWords=['de','do','da','em','que','para','com','por','uma','não','mais','os','as','nos','nas','isso','este','esta','seu','sua','foi','são','está','pelo','pela','como','mas','também','sobre','após','antes','durante','governo','brasil','país'];
+  const words=txt.toLowerCase().split(/\s+/);
+  const matches=words.filter(w=>ptWords.includes(w)).length;
+  return matches>=2||(matches/words.length)>0.08;
+}
 
-    container.innerHTML = '';
-    $('loading-el') && $('loading-el').remove();
+async function processarComIA(art){
+  try{
+    const userMsg=
+      'Notícia: '+art.title+'\nContexto: '+(art.desc||'').slice(0,300)+
+      '\n\nRetorne SOMENTE o objeto JSON abaixo preenchido, sem nenhum texto antes ou depois:\n'+
+      '{"titulo":"titulo em portugues max 90 chars",'+
+      '"subtitulo":"1 frase de impacto em portugues",'+
+      '"corpo":"2 paragrafos em portugues com os fatos principais",'+
+      '"outro_lado":"contraponto de 3 linhas em portugues sobre soberania e o que a midia omite",'+
+      '"tags":["tag1","tag2","tag3"],'+
+      '"categoria":"Geopolitica ou Tecnologia ou Defesa ou BRICS ou Energia ou Economia ou Brasil",'+
+      '"impacto":7}';
 
-    if (!filteredNews.length) {
-      container.innerHTML = `<div class="loading-state" style="grid-column:1/-1"><div class="loading-text">NENHUMA NOTÍCIA ENCONTRADA</div></div>`;
-      return;
-    }
-
-    $('news-count').textContent = `${filteredNews.length} artigos`;
-    $('stat-news').textContent  = allNews.length;
-
-    const premium = isUserPremium();
-
-    filteredNews.forEach((article, idx) => {
-      const cat  = article.categoria || categorize(article.titulo, article.resumo);
-      const bias = biasBadge(article.titulo, article.resumo);
-      const card = document.createElement('div');
-      card.className = 'news-card';
-
-      const locked = !premium && idx >= 3;
-      if (locked) card.classList.add('news-blur');
-
-      card.innerHTML = `
-        <div class="card-meta">
-          <span class="card-cat">${cat}</span>
-          ${bias}
-        </div>
-        <h2>${article.titulo}</h2>
-        <p>${article.resumo}</p>
-        <div class="card-actions">
-          <a class="btn-read" href="${article.url}" target="_blank" rel="noopener">LER MAIS →</a>
-          <button class="btn-share" onclick="compartilhar('${encodeURIComponent(article.url)}', this)">📤 COMPARTILHAR</button>
-        </div>
-      `;
-
-      /* Interceptar clique em notícia bloqueada */
-      card.querySelector('.btn-read').addEventListener('click', e => {
-        if (!isUserPremium()) {
-          newsReadCount++;
-          localStorage.setItem('bsc_read_count', newsReadCount);
-          if (newsReadCount >= 3) {
-            e.preventDefault();
-            showPaywall();
-            document.querySelectorAll('.news-card').forEach((c, i) => {
-              if (i >= 3) c.classList.add('news-blur');
-            });
-          }
-        }
-      });
-
-      container.appendChild(card);
+    admLog('🤖 IA: '+art.title.slice(0,35)+'...');
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),20000);
+    const r=await fetch('/.netlify/functions/groq-proxy',{
+      method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
+      body:JSON.stringify({messages:[
+        {role:'system',content:'Você é um editor de notícias brasileiro. Traduza e adapte notícias para o português do Brasil. Responda SEMPRE e SOMENTE com JSON puro, sem markdown, sem texto extra.'},
+        {role:'user',content:userMsg}
+      ]})
     });
-
-    /* Atualizar ticker */
-    const headlines = filteredNews.slice(0, 6).map(a => a.titulo).join(' &nbsp;•&nbsp; ');
-    $('ticker-text').innerHTML = `⚡ ${headlines} &nbsp;•&nbsp; `;
-  }
-
-  /* ── PAYWALL ── */
-  function showPaywall() {
-    if (document.querySelector('.paywall-overlay')) return;
-    const el = document.createElement('div');
-    el.className = 'paywall-overlay';
-    el.innerHTML = `
-      <div class="paywall-box">
-        <div class="icon">🔒</div>
-        <h2>CONTEÚDO EXCLUSIVO</h2>
-        <p>Você leu suas 3 notícias gratuitas de hoje.<br>Apoie o portal e acesse tudo, sem limites, por 30 dias.</p>
-        <button onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">APOIAR AGORA — R$ 10 →</button>
-        <button onclick="this.closest('.paywall-overlay').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:10px;font-size:.8em;letter-spacing:1px;">Continuar grátis (limitado)</button>
-      </div>
-    `;
-    document.body.appendChild(el);
-  }
-
-  /* ── COMPARTILHAR (viral-share endpoint) ── */
-  async function compartilhar(encodedUrl, btn) {
-    const url = decodeURIComponent(encodedUrl);
-    btn.disabled = true;
-    btn.textContent = '...';
-    try {
-      const fd = new FormData();
-      fd.append('articleUrl', url);
-      const r = await fetch('/functions/viral-share', { method: 'POST', body: fd });
-      if (r.ok) {
-        const data = await r.json();
-        if (data.success) {
-          /* Copia link para clipboard ou abre WhatsApp */
-          const msg = encodeURIComponent(data.shareText || `Leia sem censura: ${url}`);
-          window.open(`https://wa.me/?text=${msg}`, '_blank');
-        }
-      } else {
-        /* Fallback direto */
-        const msg = encodeURIComponent(`Leia esta notícia no Brasil Sem Censura: ${url}`);
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
-      }
-    } catch {
-      const msg = encodeURIComponent(`Leia esta notícia no Brasil Sem Censura: ${url}`);
-      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    clearTimeout(timer);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(d.error) throw new Error(d.error);
+    let raw=(d?.choices?.[0]?.message?.content||'').trim();
+    raw=raw.replace(/```json|```/g,'').trim();
+    const jsonMatch=raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('sem JSON');
+    const parsed=JSON.parse(jsonMatch[0]);
+    if(!parsed.titulo) throw new Error('sem titulo');
+    parsed.outro_lado=parsed.outro_lado||'';
+    admLog('✔ IA: '+parsed.titulo.slice(0,40));
+    return parsed;
+  }catch(e){
+    admLog('⚠ IA falhou — tradução emergencial...');
+    try{
+      const traduzir=async(txt)=>{
+        if(!txt||isPortugues(txt)) return txt;
+        const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt-BR&dt=t&q='+encodeURIComponent(txt.slice(0,500));
+        const r=await fetch(url); const d=await r.json();
+        return d[0].map(s=>s[0]).join('')||txt;
+      };
+      const[titulo,subtitulo,corpo]=await Promise.all([traduzir(art.title),traduzir((art.desc||'').slice(0,150)),traduzir(art.desc||'')]);
+      admLog('✔ Tradução emergencial: '+titulo.slice(0,40));
+      return {titulo,subtitulo,corpo,outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5};
+    }catch(e2){
+      admLog('⚠ Tradução falhou — exibindo original');
+      return {titulo:art.title,subtitulo:(art.desc||'').slice(0,100),corpo:art.desc||'',outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5};
     }
-    btn.disabled = false;
-    btn.textContent = '📤 COMPARTILHAR';
+  }
+}
+
+async function carregarOutroLadoArtigo(n){
+  const olDiv=document.getElementById('artOutroLado');
+  const olBody=document.getElementById('artOutroLadoBody');
+  if(!olDiv||!olBody) return;
+  if(n.outro_lado&&n.outro_lado.length>30&&!n.outro_lado.includes('será carregada')){
+    olBody.textContent=n.outro_lado; olDiv.style.display='block'; return;
+  }
+  olBody.innerHTML='<span class="outro-lado-loading">⚡ Gerando análise de soberania...</span>';
+  olDiv.style.display='block';
+  try{
+    const res=await fetch('/.netlify/functions/groq-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:'Traduza se necessário e faça um contraponto de 3 linhas focado em soberania nacional sobre: '+n.titulo+'. Contexto: '+(n.subtitulo||n.corpo||'').slice(0,300)}]})});
+    const d=await res.json();
+    const analise=d?.choices?.[0]?.message?.content||'';
+    if(analise.length>10){
+      olBody.textContent=analise;
+      const idx=allNews.findIndex(x=>x.id===n.id);
+      if(idx>-1) allNews[idx].outro_lado=analise;
+    } else { olDiv.style.display='none'; }
+  }catch(e){ olDiv.style.display='none'; }
+}
+
+// ══════════════════════════════
+// RENDER CARDS
+// ══════════════════════════════
+function renderAll(){
+  const feed=document.getElementById('newsFeed');
+  if(!feed) return;
+  let lista=filtroAtual==='todos'?allNews:allNews.filter(n=>n.categoria===filtroAtual);
+  document.getElementById('feedCount').textContent=lista.length+' artigos';
+
+  if(!lista.length){
+    feed.innerHTML=`<div class="empty-state"><div class="empty-ico">📡</div><div class="empty-t">Sem artigos nesta categoria</div><div class="empty-s">Aguarde atualização automática</div></div>`;
+    return;
   }
 
-  /* ── COLABORADORES ── */
-  async function enviarColaboracao() {
-    const urlInput = $('colab-url');
-    const msg      = $('colab-msg');
-    const url      = urlInput.value.trim();
-    if (!url) { msg.textContent = '⚠ Cole um link válido.'; return; }
-    msg.textContent = 'Enviando...';
-    try {
-      const r = await fetch('/functions/colaboradores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, token: localStorage.getItem('bsc_token') || '' })
-      });
-      const data = await r.json();
-      msg.textContent = data.success
-        ? '✅ Notícia enviada! Nossa IA irá analisá-la. Obrigado!'
-        : `⚠ ${data.message || 'Erro ao enviar.'}`;
-      if (data.success) urlInput.value = '';
-    } catch {
-      msg.textContent = '⚠ Não foi possível conectar ao servidor.';
-    }
-    setTimeout(() => { msg.textContent = ''; }, 5000);
-  }
+  const livre=isUnlocked();
+  const categoriasVistas={};
+  const catDisplay={Geopolitica:'Geopolítica',Tecnologia:'Tecnologia',Defesa:'Defesa',BRICS:'BRICS',Energia:'Energia',Economia:'Economia',Brasil:'Brasil'};
 
-  /* ── POPUP BOAS-VINDAS ── */
-  function showWelcomePopup() {
-    if (localStorage.getItem('bsc_welcome_shown')) return;
-    localStorage.setItem('bsc_welcome_shown', '1');
+  feed.innerHTML=lista.map((n,i)=>{
+    const preview=(n.subtitulo||n.corpo||'').slice(0,140);
+    const tags=(n.tags||[]).map(t=>`<span class="ntag">${esc(t)}</span>`).join('');
+    const primeiraDaCategoria=!categoriasVistas[n.categoria];
+    if(primeiraDaCategoria) categoriasVistas[n.categoria]=true;
+    const gratis=primeiraDaCategoria||livre;
+    const cat=catDisplay[n.categoria]||n.categoria;
+    const delay=(i*60)+'ms';
+    const bias=biasBadge(n.titulo,n.subtitulo||n.corpo);
 
-    const el = document.createElement('div');
-    el.className = 'welcome-overlay';
-    el.id = 'welcome-popup';
-    el.innerHTML = `
-      <div class="welcome-box">
-        <button class="close-btn" onclick="fecharBV()">✕</button>
-        <div class="welcome-badge">OFERTA EXCLUSIVA</div>
-        <h2>3 DIAS PREMIUM GRÁTIS</h2>
-        <p>Acesse todas as notícias sem limites.<br>Sem cartão de crédito. Ativação instantânea.</p>
-        <div class="countdown-wrap">
-          <div class="countdown-label">Oferta expira em</div>
-          <div class="countdown-time" id="countdown">10:00</div>
+    if(gratis) return `
+      <div class="ncard" style="animation-delay:${delay};position:relative" onclick="abrirArtigo('${n.id}')">
+        <span class="free-badge">${livre?'✓ Livre':'🔓 Grátis'}</span>
+        <div class="ncard-top"><span class="nsource ${n.cls||''}">${esc(n.source)}</span><span class="ntime">${timeAgo(n.ts)}</span></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <div class="ncat">${esc(cat)}</div>${bias}
         </div>
-        <button onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">ATIVAR AGORA — GRÁTIS →</button>
-        <button class="welcome-skip" onclick="fecharBV()">Não, prefiro continuar com limite</button>
-      </div>
-    `;
-    document.body.appendChild(el);
-    iniciarCountdown();
-  }
-
-  function fecharBV() {
-    const p = $('welcome-popup');
-    if (p) p.remove();
-  }
-
-  let countdownInterval;
-  function iniciarCountdown() {
-    let secs = 600;
-    const el = $('countdown');
-    if (!el) return;
-    countdownInterval = setInterval(() => {
-      if (secs <= 0) { clearInterval(countdownInterval); fecharBV(); return; }
-      secs--;
-      const m = String(Math.floor(secs / 60)).padStart(2, '0');
-      const s = String(secs % 60).padStart(2, '0');
-      if (el) el.textContent = `${m}:${s}`;
-    }, 1000);
-  }
-
-  /* ── FETCH NOTÍCIAS ── */
-  async function startScan() {
-    if (buscando) return;
-    buscando = true;
-    admLog('Buscando notícias...');
-    const isPremium = isUserPremium();
-    try {
-      const r = await fetch(`/functions/fetch-news?premium=${isPremium}&_=${Date.now()}`);
-      if (r.ok) {
-        const raw = await r.json();
-        if (raw.articles && raw.articles.length) {
-          allNews = raw.articles.map(a => ({
-            ...a,
-            categoria: a.categoria || categorize(a.titulo || '', a.resumo || '')
-          }));
-          renderAll();
-          salvarCache(allNews);
-          const now = new Date();
-          const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-          $('lastUpdate').textContent = `Atualizado ${time}`;
-          admLog(`✔ ${allNews.length} notícias carregadas.`);
-        } else {
-          admLog('⚠ Sem artigos novos.');
-        }
-      } else {
-        admLog(`⚠ HTTP ${r.status}`);
-      }
-    } catch(e) {
-      admLog(`⚠ ${e.message}`);
-    }
-    buscando = false;
-  }
-
-  /* ── FILTRO CATEGORIAS ── */
-  document.querySelectorAll('.cat-btn, nav a[data-cat]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      currentCat = btn.dataset.cat || 'Todos';
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      if (btn.classList.contains('cat-btn')) btn.classList.add('active');
-      else {
-        document.querySelectorAll('.cat-btn').forEach(b => {
-          if (b.dataset.cat === currentCat) b.classList.add('active');
-        });
-      }
-      renderAll();
-    });
-  });
-
-  /* ── SCROLL TOP ── */
-  window.addEventListener('scroll', () => {
-    $('scrollTop').classList.toggle('show', window.scrollY > 400);
-  });
-
-  /* ── INIT ── */
-  window.addEventListener('load', () => {
-    checkExpiry();
-    const access = checkURLToken();
-
-    /* Carrega cache imediatamente */
-    allNews = carregarCache();
-    if (allNews.length) {
-      renderAll();
-    }
-
-    if (access === 'owner') {
-      const el = document.createElement('div');
-      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
-      el.innerHTML = `<div style="background:var(--bg2);border:1px solid rgba(245,200,66,.35);border-top:3px solid var(--gold);max-width:400px;width:100%;padding:40px;text-align:center;border-radius:6px">
-        <div style="font-size:52px">👑</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:2em;letter-spacing:4px;color:var(--gold);margin:12px 0">BEM-VINDO, DONO!</div>
-        <div style="font-size:.88em;color:var(--muted);margin-bottom:24px">Acesso total e permanente ativado.<br>Análise IA em cada notícia desbloqueada.</div>
-        <button onclick="this.closest('div[style]').remove();renderAll();" style="width:100%;background:linear-gradient(90deg,#f59e0b,#f5c842);color:#0a0a0f;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:1.2em;letter-spacing:3px;cursor:pointer;border-radius:4px">ENTRAR →</button>
+        <div class="ntitle">${esc(n.titulo)}</div>
+        <div class="nbody">${esc(preview)}...</div>
+        ${tags?`<div class="ntags">${tags}</div>`:''}
+        ${n.outro_lado&&n.outro_lado.length>30&&!n.outro_lado.includes('será carregada')?`
+        <div class="card-outro">
+          <div class="card-outro-title">⚖ O Outro Lado</div>
+          <div class="card-outro-body">${esc(n.outro_lado.slice(0,200))}...</div>
+        </div>`:''}
+        <div class="nmore">Ler análise completa →</div>
       </div>`;
-      document.body.appendChild(el);
-    } else if (access === 'paid') {
-      showToast('✅ Acesso Premium ativado!');
-      renderAll();
-    }
 
-    /* Busca notícias reais */
-    startScan();
+    return `
+      <div class="ncard ncard-locked" style="animation-delay:${delay};min-height:220px;position:relative">
+        <div class="ncard-top"><span class="nsource ${n.cls||''}">${esc(n.source)}</span><span class="ntime">${timeAgo(n.ts)}</span></div>
+        <div class="ncat">${esc(cat)}</div>
+        <div class="ntitle">${esc(n.titulo)}</div>
+        <div class="nbody" style="opacity:.25">${esc(preview)}...</div>
+        <div class="lock-cover">
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:6px;flex-wrap:wrap">
+            <span style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#10b981;font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 8px">GRÁTIS: 1/categoria</span>
+            <span style="background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#f5c842;font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 8px">⭐ APOIADOR: TUDO</span>
+          </div>
+          <div class="lock-txt">Apoie com <strong style="color:#f5c842">R$ 10</strong> e leia tudo por <strong style="color:#f5c842">30 dias</strong></div>
+          <button class="lock-btn" onclick="openPix()">⚡ Desbloquear Tudo — R$ 10</button>
+        </div>
+      </div>`;
+  }).join('');
+}
 
-    /* Atualização periódica */
-    const interval = isUserPremium() ? 30 * 60 * 1000 : 60 * 60 * 1000;
-    setInterval(startScan, interval);
-    window.addEventListener('online', startScan);
+// ══════════════════════════════
+// HERO / URGENTES / TICKER
+// ══════════════════════════════
+function updateHero(){
+  if(!allNews.length) return;
+  const n=[...allNews].sort((a,b)=>(b.impacto||5)-(a.impacto||5))[0];
+  const cats={Geopolitica:'Geopolítica',Tecnologia:'Tecnologia',Defesa:'Defesa',BRICS:'BRICS',Energia:'Energia',Economia:'Economia',Brasil:'🇧🇷 Brasil'};
+  document.getElementById('heroTitle').textContent=n.titulo;
+  document.getElementById('heroDesc').textContent=(n.subtitulo||n.corpo||'').slice(0,200)+'...';
+  document.getElementById('heroCat').textContent=cats[n.categoria]||n.categoria;
+  document.getElementById('heroCat2').textContent=cats[n.categoria]||n.categoria;
+  document.getElementById('heroTime').textContent=timeAgo(n.ts);
+  document.getElementById('heroMain').onclick=()=>abrirArtigo(n.id);
+  document.getElementById('heroStack').innerHTML=allNews.slice(1,4).map((n,i)=>`
+    <div class="rail-card" onclick="abrirArtigo('${n.id}')">
+      <div class="rail-num">0${i+2}</div>
+      <div class="rail-cat">${esc(n.categoria)}</div>
+      <div class="rail-title">${esc(n.titulo)}</div>
+      <div class="rail-meta">${timeAgo(n.ts)}</div>
+    </div>`).join('');
+}
 
-    /* Popup boas-vindas (2s delay) */
-    if (!isUserPremium()) {
-      setTimeout(showWelcomePopup, 2000);
-    }
+function updateUrgentes(){
+  if(!allNews.length) return;
+  document.getElementById('urgentesList').innerHTML=allNews.slice(0,5).map((n,i)=>`
+    <div class="urg-item" onclick="abrirArtigo('${n.id}')">
+      <span class="urg-n">0${i+1}</span>
+      <div><div class="urg-title">${esc(n.titulo.slice(0,60))}</div><div class="urg-time">${timeAgo(n.ts)}</div></div>
+    </div>`).join('');
+}
+
+function updateTicker(){
+  if(!allNews.length) return;
+  const items=allNews.slice(0,8).map(n=>`<span class="ticker-item">${esc(n.titulo.slice(0,80))}</span>`);
+  document.getElementById('tickerInner').innerHTML=items.join('')+items.join('');
+}
+
+// ══════════════════════════════
+// FILTROS
+// ══════════════════════════════
+function filterCards(cat,btn){
+  filtroAtual=cat;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  if(btn) btn.classList.add('on');
+  const feed=document.getElementById('newsFeed');
+  if(feed) window.scrollTo({top:feed.offsetTop-140,behavior:'smooth'});
+  renderAll();
+}
+
+function navFilter(cat,link){
+  filtroAtual=cat;
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  if(link) link.classList.add('active');
+  document.querySelectorAll('.fb').forEach(b=>{
+    if(cat==='todos'&&b.textContent.trim()==='Todos') b.classList.add('on');
+    else if(b.textContent.includes(cat)) b.classList.add('on');
   });
+  if(document.getElementById('articleView').style.display==='block'){
+    goHome(); setTimeout(renderAll,100);
+  } else {
+    renderAll();
+    const feed=document.getElementById('newsFeed');
+    if(feed) window.scrollTo({top:feed.offsetTop-140,behavior:'smooth'});
+  }
+}
+
+// ══════════════════════════════
+// ARTIGO
+// ══════════════════════════════
+function abrirArtigo(id){
+  const n=allNews.find(x=>x.id===id); if(!n) return;
+  artigoAberto=id;
+  const livre=isUnlocked();
+  const podeVer=allNews.indexOf(n)<3||livre;
+
+  // Paywall por leitura
+  if(!podeVer){
+    newsReadCount++;
+    localStorage.setItem('bsc_read_count',newsReadCount);
+    if(newsReadCount>=3){ showPaywall(); return; }
+  }
+
+  document.getElementById('artCat').textContent=n.categoria;
+  document.getElementById('artTitle').textContent=n.titulo;
+  document.getElementById('artSubtitle').textContent=n.subtitulo||'';
+  document.getElementById('artSourceChip').className='art-src-chip '+(n.cls||'');
+  document.getElementById('artSourceName').textContent=n.source;
+  document.getElementById('artDate').textContent=timeAgo(n.ts);
+  document.getElementById('artReads').textContent=(n.reads||0).toLocaleString('pt-BR')+' leituras';
+  document.getElementById('artSourceFull').textContent=n.source;
+  document.getElementById('artSourceDesc').textContent=n.feedDesc||'Fonte internacional de notícias.';
+  document.getElementById('artTags').innerHTML=(n.tags||[]).map(t=>`<span class="atag">${esc(t)}</span>`).join('');
+
+  const lk=document.getElementById('artSourceLink');
+  if(n.link&&n.link!=='#'){ lk.href=n.link; lk.style.display='inline-flex'; } else { lk.style.display='none'; }
+
+  document.getElementById('artRelated').innerHTML=allNews
+    .filter(x=>x.id!==id&&x.categoria===n.categoria).slice(0,4)
+    .map((r,i)=>`<div class="art-related-item" onclick="abrirArtigo('${r.id}')"><span class="ar-n">0${i+1}</span><div><div class="ar-title">${esc(r.titulo)}</div><div class="ar-cat">${timeAgo(r.ts)}</div></div></div>`)
+    .join('');
+
+  const bw=document.getElementById('artBodyWrap');
+  const lw=document.getElementById('artLockWall');
+  const paras=(n.corpo||'').split('\n\n').filter(Boolean);
+
+  if(podeVer){
+    bw.classList.remove('art-body-blur'); lw.style.display='none';
+    document.getElementById('artBody').innerHTML=paras.map(p=>`<p>${esc(p)}</p>`).join('');
+    const ub=document.getElementById('artUnlockedBadge');
+    if(livre){ ub.style.display='flex'; }
+    carregarOutroLadoArtigo(n);
+  } else {
+    bw.classList.add('art-body-blur'); lw.style.display='block';
+    document.getElementById('artBody').innerHTML=`<p>${esc(paras[0]||'')}</p>`;
+    document.getElementById('artOutroLado').style.display='none';
+  }
+
+  const bWA=document.getElementById('btnShareWA');
+  const bFB=document.getElementById('btnShareFB');
+  const bDL=document.getElementById('btnShareDL');
+  if(podeVer){
+    bWA.classList.remove('locked'); bWA.onclick=shareWhats;
+    bFB.classList.remove('locked'); bFB.onclick=shareFB;
+    bDL.classList.remove('locked'); bDL.onclick=downloadArt;
+  } else {
+    bWA.classList.add('locked'); bWA.onclick=openPix;
+    bFB.classList.add('locked'); bFB.onclick=openPix;
+    bDL.classList.add('locked'); bDL.onclick=openPix;
+  }
+
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('articleView').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goHome(){
+  document.getElementById('articleView').style.display='none';
+  document.getElementById('homeView').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════════════════════════
+// PAYWALL POPUP
+// ══════════════════════════════
+function showPaywall(){
+  if(document.querySelector('.paywall-overlay')) return;
+  const el=document.createElement('div'); el.className='paywall-overlay';
+  el.innerHTML=`
+    <div class="paywall-box">
+      <div class="icon">🔒</div>
+      <h2>CONTEÚDO EXCLUSIVO</h2>
+      <p>Você leu suas <strong style="color:var(--gold)">3 notícias gratuitas</strong> de hoje.<br>Apoie o portal e acesse tudo, sem limites, por <strong style="color:var(--gold)">30 dias</strong>.</p>
+      <button onclick="openPix();this.closest('.paywall-overlay').remove()">APOIAR AGORA — R$ 10 →</button>
+      <button onclick="this.closest('.paywall-overlay').remove()" style="background:transparent;border:1px solid var(--border);color:var(--txt2);margin-top:8px;font-size:12px;letter-spacing:1px">Continuar grátis (limitado)</button>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+// ══════════════════════════════
+// WELCOME POPUP
+// ══════════════════════════════
+function showWelcomePopup(){
+  if(localStorage.getItem('bsc_welcome_shown')) return;
+  localStorage.setItem('bsc_welcome_shown','1');
+  const el=document.createElement('div'); el.className='welcome-overlay'; el.id='welcome-popup';
+  el.innerHTML=`
+    <div class="welcome-box">
+      <button class="close-btn" onclick="fecharBV()">✕</button>
+      <div class="welcome-badge">OFERTA EXCLUSIVA</div>
+      <h2>3 DIAS PREMIUM GRÁTIS</h2>
+      <p>Acesse todas as notícias sem limites.<br>Sem cartão de crédito. Ativação instantânea.</p>
+      <div class="countdown-wrap">
+        <div class="countdown-label">Oferta expira em</div>
+        <div class="countdown-time" id="countdown">10:00</div>
+      </div>
+      <button onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">ATIVAR AGORA — GRÁTIS →</button>
+      <button class="welcome-skip" onclick="fecharBV()">Não, prefiro continuar com limite</button>
+    </div>`;
+  document.body.appendChild(el);
+  iniciarCountdown();
+}
+
+function fecharBV(){ const p=document.getElementById('welcome-popup'); if(p) p.remove(); }
+
+let countdownInterval;
+function iniciarCountdown(){
+  let secs=600; const el=document.getElementById('countdown'); if(!el) return;
+  countdownInterval=setInterval(()=>{
+    if(secs<=0){ clearInterval(countdownInterval); fecharBV(); return; }
+    secs--;
+    const m=String(Math.floor(secs/60)).padStart(2,'0');
+    const s=String(secs%60).padStart(2,'0');
+    if(el) el.textContent=`${m}:${s}`;
+  },1000);
+}
+
+// ══════════════════════════════
+// COMPARTILHAR
+// ══════════════════════════════
+function shareWhats(){
+  const n=allNews.find(x=>x.id===artigoAberto); if(!n) return;
+  const txt='🇧🇷 *'+n.titulo+'*\n\n'+(n.subtitulo||'').slice(0,120)+'\n\n📰 *Brasil Sem Censura*\n🔗 '+SITE_URL;
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+function shareFB(){ window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(SITE_URL),'_blank'); }
+function copyLink(){ navigator.clipboard?.writeText(window.location.href).then(()=>showToast('✅ Link copiado!')); }
+function downloadArt(){
+  const n=allNews.find(x=>x.id===artigoAberto); if(!n) return;
+  const txt='BRASIL SEM CENSURA\n\n'+n.titulo+'\n\n'+n.subtitulo+'\n\n'+n.corpo+'\n\nFonte: '+n.source+'\n'+SITE_URL;
+  const a=document.createElement('a'); a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt); a.download='noticia-bsc.txt'; a.click();
+}
+
+// ══════════════════════════════
+// COLABORADORES
+// ══════════════════════════════
+async function enviarColaboracao(){
+  const urlInput=document.getElementById('colab-url');
+  const msg=document.getElementById('colab-msg');
+  const url=urlInput.value.trim();
+  if(!url){ msg.textContent='⚠ Cole um link válido.'; return; }
+  msg.textContent='Enviando...';
+  try{
+    const r=await fetch('/functions/colaboradores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,token:localStorage.getItem('bsc_token')||''})});
+    const data=await r.json();
+    msg.textContent=data.success?'✅ Notícia enviada! Nossa IA irá analisá-la. Obrigado!':`⚠ ${data.message||'Erro ao enviar.'}`;
+    if(data.success) urlInput.value='';
+  }catch{
+    msg.textContent='⚠ Não foi possível conectar ao servidor.';
+  }
+  setTimeout(()=>{ msg.textContent=''; },5000);
+}
+
+// ══════════════════════════════
+// PIX
+// ══════════════════════════════
+function openPix(){
+  const w=document.getElementById('pixIframeWrap');
+  if(!w.querySelector('iframe'))
+    w.innerHTML=`<iframe src="https://widget.livepix.gg/embed/53ff298c-566b-410f-8ea3-6f4f8afede2a" width="100%" height="400" style="border:none;display:block" allow="payment *" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+  document.getElementById('pixModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePix(){ document.getElementById('pixModal').classList.remove('open'); document.body.style.overflow=''; }
+function closePixOverlay(e){ if(e.target.id==='pixModal') closePix(); }
+
+// ══════════════════════════════
+// ADMIN / DEBUG
+// ══════════════════════════════
+let adminOpen=false;
+document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.shiftKey&&e.key==='A') toggleAdmin(); });
+function toggleAdmin(){ adminOpen=!adminOpen; document.getElementById('adminPanel').classList.toggle('open',adminOpen); }
+function toggleDebug(){
+  const p=document.getElementById('debugPanel'); const b=document.getElementById('debugBtn');
+  if(p.style.display==='none'){ p.style.display='block'; if(b) b.style.display='none'; }
+  else{ p.style.display='none'; if(b) b.style.display='block'; }
+}
+
+function admLog(m){
+  const el=document.getElementById('admLog'); if(el) el.textContent=m;
+  const sb=document.getElementById('statusBar'); const sm=document.getElementById('statusMsg');
+  if(sb&&sm){ sb.style.display='block'; sm.textContent=m; }
+  if(m.includes('✔')||m.includes('prontas')){ setTimeout(()=>{ if(sb) sb.style.display='none'; },4000); }
+  const body=document.getElementById('debugBody');
+  if(body){
+    const line=document.createElement('div');
+    const t=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    line.className='debug-line'+(m.includes('✔')||m.includes('OK')||m.includes('prontas')?' ok':m.includes('Erro')||m.includes('falhou')?' err':' info');
+    line.textContent=t+' › '+m;
+    body.appendChild(line); body.scrollTop=body.scrollHeight;
+    while(body.children.length>30) body.removeChild(body.firstChild);
+  }
+}
+
+// ══════════════════════════════
+// BUSCAR NOTÍCIAS + IA
+// ══════════════════════════════
+async function startScan(){
+  if(buscando) return;
+  buscando=true;
+  admLog('🔍 Buscando notícias no servidor...');
+  let raw=[];
+  try{
+    const r=await fetch('/.netlify/functions/fetch-news',{signal:AbortSignal.timeout(20000)});
+    if(r.ok){
+      const d=await r.json();
+      if(Array.isArray(d)&&d.length>0){ raw=d; admLog('✔ Servidor: '+raw.length+' artigos recebidos!'); }
+      else admLog('⚠ Servidor respondeu mas sem artigos.');
+    } else admLog('⚠ HTTP '+r.status);
+  }catch(e){ admLog('⚠ Servidor indisponível: '+e.message.slice(0,30)); }
+
+  if(!raw.length){ admLog('⚠ Sem artigos. Tentando em 2s...'); buscando=false; setTimeout(startScan,2000); return; }
+
+  admLog('🤖 Traduzindo e analisando '+raw.length+' notícias...');
+  const processadas=await Promise.all(raw.map(async(art,i)=>{
+    try{
+      const r=await processarComIA(art);
+      return {...art,titulo:r.titulo||art.title,subtitulo:r.subtitulo||'',corpo:r.corpo||art.desc||'',outro_lado:r.outro_lado||'',tags:r.tags||['Internacional'],categoria:r.categoria||categorize(art.title,art.desc||''),impacto:parseInt(r.impacto)||5,ts:Date.now()-i*60000,id:'n'+Math.random().toString(36).slice(2),reads:Math.floor(Math.random()*8000)+500};
+    }catch(e){
+      return {...art,titulo:art.title,subtitulo:(art.desc||'').slice(0,100),corpo:art.desc||'',outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5,ts:Date.now()-i*60000,id:'n'+Math.random().toString(36).slice(2),reads:1000};
+    }
+  }));
+
+  const simples=[...processadas].sort((a,b)=>(a.impacto||5)-(b.impacto||5)).slice(0,3);
+  const resto=processadas.filter(n=>!simples.find(s=>s.id===n.id)).sort((a,b)=>(b.impacto||5)-(a.impacto||5));
+  allNews=[...simples,...resto];
+
+  renderAll(); updateHero(); updateUrgentes(); updateTicker();
+  salvarCache(allNews);
+
+  const now=new Date();
+  document.getElementById('lastUpdate').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  admLog('✔ '+allNews.length+' notícias prontas! O Outro Lado disponível ao abrir cada artigo.');
+  buscando=false;
+}
+
+// ══════════════════════════════
+// TOKEN / DONO
+// ══════════════════════════════
+function checkURLToken(){
+  const p=new URLSearchParams(window.location.search);
+  const dono=p.get('dono');
+  if(dono&&dono.toUpperCase()===OWNER_SECRET){
+    localStorage.setItem('bsc_token',OWNER_TOKEN);
+    localStorage.setItem('bsc_expires',String(Date.now()+99999*24*60*60*1000));
+    window.history.replaceState({},document.title,window.location.pathname);
+    return 'owner';
+  }
+  const t=p.get('token'),e=p.get('expires');
+  if(t&&e){
+    localStorage.setItem('bsc_token',t);
+    localStorage.setItem('bsc_expires',e);
+    window.history.replaceState({},document.title,window.location.pathname);
+    return 'paid';
+  }
+  return false;
+}
+
+// ══════════════════════════════
+// SCROLL TOP
+// ══════════════════════════════
+window.addEventListener('scroll',()=>{
+  document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400);
+});
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+window.addEventListener('load',()=>{
+  allNews=carregarCache();
+  renderAll(); updateHero(); updateUrgentes(); updateTicker();
+
+  const access=checkURLToken();
+  if(access==='owner'){
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+    el.innerHTML=`<div style="background:#12121f;border:1px solid rgba(245,200,66,.4);border-top:3px solid #f5c842;max-width:400px;width:100%;padding:36px;text-align:center">
+      <div style="font-size:52px">👑</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;color:#f5c842;margin:12px 0">BEM-VINDO, DONO!</div>
+      <div style="font-size:13px;color:#a89ec9;margin-bottom:24px">Acesso total e permanente ativado.<br>Análise IA em cada notícia desbloqueada.</div>
+      <button onclick="this.closest('div[style]').remove();renderAll();" style="background:linear-gradient(90deg,#f59e0b,#f5c842);color:#0a0a0f;border:none;padding:13px 36px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;width:100%">ENTRAR →</button>
+    </div>`;
+    document.body.appendChild(el);
+  } else if(access==='paid'){
+    showToast('✅ Acesso Premium ativado!');
+    renderAll();
+  }
+
+  startScan();
+  setInterval(startScan, 20*60*1000);
+
+  if(!isUnlocked()){
+    setTimeout(showWelcomePopup, 2000);
+  }
+});
 </script>
 </body>
 </html>
