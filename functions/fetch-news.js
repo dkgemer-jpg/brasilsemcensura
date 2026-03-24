@@ -1,5 +1,5 @@
 // fetch-news.js v7 — Brasil Sem Censura
-// Corrigido: tratamento robusto de JSON e erros de API
+// Corrigido: tratamento robusto de JSON e erros de API, cache desativado para atualização em tempo real
 
 export async function onRequest(context) {
   const { env } = context;
@@ -138,7 +138,7 @@ Responda APENAS com JSON valido no formato:
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "public, max-age=300"
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
       }
     });
 
