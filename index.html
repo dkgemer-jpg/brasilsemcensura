@@ -745,7 +745,7 @@ footer{background:var(--card);border-top:1px solid var(--border);position:relati
 // ══════════════════════════════
 // CONFIG
 // ══════════════════════════════
-const SITE_URL     = 'https://brasil-sem-censura.netlify.app';
+const SITE_URL     = 'https://brasilsemcensura.pages.dev';
 const OWNER_TOKEN  = 'owner_permanent_dkgemerbr_2024_bsc';
 const OWNER_SECRET = 'DKGEMERBR';
 
@@ -879,7 +879,7 @@ async function processarComIA(art){
     admLog('🤖 IA: '+art.title.slice(0,35)+'...');
     const ctrl=new AbortController();
     const timer=setTimeout(()=>ctrl.abort(),20000);
-    const r=await fetch('/.netlify/functions/groq-proxy',{
+    const r=await fetch('/functions/groq-proxy',{
       method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
       body:JSON.stringify({messages:[
         {role:'system',content:'Você é um editor de notícias brasileiro. Traduza e adapte notícias para o português do Brasil. Responda SEMPRE e SOMENTE com JSON puro, sem markdown, sem texto extra.'},
@@ -928,7 +928,7 @@ async function carregarOutroLadoArtigo(n){
   olBody.innerHTML='<span class="outro-lado-loading">⚡ Gerando análise de soberania...</span>';
   olDiv.style.display='block';
   try{
-    const res=await fetch('/.netlify/functions/groq-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    const res=await fetch('/functions/groq-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({messages:[{role:'user',content:'Traduza se necessário e faça um contraponto de 3 linhas focado em soberania nacional sobre: '+n.titulo+'. Contexto: '+(n.subtitulo||n.corpo||'').slice(0,300)}]})});
     const d=await res.json();
     const analise=d?.choices?.[0]?.message?.content||'';
@@ -1288,10 +1288,11 @@ async function startScan(){
   admLog('🔍 Buscando notícias no servidor...');
   let raw=[];
   try{
-    const r=await fetch('/.netlify/functions/fetch-news',{signal:AbortSignal.timeout(20000)});
+    const r=await fetch('/functions/fetch-news',{signal:AbortSignal.timeout(20000)});
     if(r.ok){
       const d=await r.json();
       if(Array.isArray(d)&&d.length>0){ raw=d; admLog('✔ Servidor: '+raw.length+' artigos recebidos!'); }
+      else if(d.articles&&d.articles.length>0){ raw=d.articles; admLog('✔ Servidor: '+raw.length+' artigos recebidos!'); }
       else admLog('⚠ Servidor respondeu mas sem artigos.');
     } else admLog('⚠ HTTP '+r.status);
   }catch(e){ admLog('⚠ Servidor indisponível: '+e.message.slice(0,30)); }
