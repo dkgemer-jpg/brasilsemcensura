@@ -1,199 +1,160 @@
-// functions/fetch-news.js — Cloudflare Pages Function (v7 filtro + traducao)
-
-const PALAVRAS_RELEVANTES = [
-  'brasil', 'russia', 'china', 'eua', 'guerra', 'geopolit', 'brics', 'nato', 'otan',
-  'israel', 'iran', 'ukraine', 'ucrania', 'trump', 'putin', 'xi', 'lula', 'eleicao',
-  'election', 'nuclear', 'sanction', 'sanctao', 'economia', 'economy', 'energy', 'energia',
-  'petroleo', 'oil', 'gas', 'military', 'militar', 'defesa', 'defense', 'intelligence',
-  'censura', 'censorship', 'liberdade', 'freedom', 'tech', 'tecnologia', 'ia', 'artificial',
-  'banco', 'bank', 'dolar', 'dollar', 'inflacao', 'inflation', 'africa', 'asia', 'europa',
-  'middle east', 'oriente', 'conflito', 'conflict', 'acordo', 'agreement', 'missil', 'missile',
-  'drone', 'ataque', 'attack', 'palestina', 'palestine', 'gaza', 'siria', 'syria',
-  'venezuela', 'argentina', 'mexico', 'colombia', 'cuba', 'nicaragua', 'bolivar',
-  'comercio', 'trade', 'tarifa', 'tariff', 'sancao', 'embargo', 'alianca', 'alliance'
+// fetch-news.js v7 — Brasil Sem Censura
+const FEEDS_RSS = [
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://rss.reuters.com/reuters/worldNews",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://feeds.skynews.com/feeds/rss/world.rss",
+  "https://www.rt.com/rss/news/",
+  "https://feeds.feedburner.com/ndtvnews-world-news",
+  "https://www.dw.com/rss/rss.xml",
+  "https://feeds.france24.com/rss/en/news",
 ];
 
-function ehRelevante(titulo, desc) {
-  const texto = (titulo + ' ' + desc).toLowerCase();
-  return PALAVRAS_RELEVANTES.some(p => texto.includes(p));
-}
+const PALAVRAS_GEOPOLITICA = [
+  "war","guerra","conflict","conflito","military","militar","nato","otan",
+  "russia","ukraine","ucrania","china","taiwan","israel","palestine",
+  "iran","sanctions","sancoes","nuclear","missile","coup","golpe",
+  "election","eleicao","president","presidente","prime minister",
+  "diplomacy","treaty","alliance","troops","attack","ataque","bombing",
+  "invasion","ceasefire","refugee","humanitarian","genocide","oil",
+  "energy","trade","security council","united nations","pentagon","kremlin",
+  "protest","revolution","regime","government","governo",
+];
 
-function similaridade(a, b) {
-  const wa = new Set(a.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-  const wb = new Set(b.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-  if (wa.size === 0 || wb.size === 0) return 0;
-  let comuns = 0;
-  for (const w of wa) if (wb.has(w)) comuns++;
-  return comuns / Math.min(wa.size, wb.size);
-}
-
-function removerDuplicatas(itens) {
-  const resultado = [];
-  for (const item of itens) {
-    const dup = resultado.some(r => similaridade(r.title, item.title) > 0.6);
-    if (!dup) resultado.push(item);
-  }
-  return resultado;
-}
-
-async function traduzirComGroq(itens, groqKey) {
-  if (!groqKey || itens.length === 0) return null;
-  const textos = itens.map((item, i) =>
-    `[${i}] TITULO: ${item.title}\nRESUMO: ${item.desc}`
-  ).join('\n\n');
-  const prompt = `Traduza TODOS os textos abaixo para portugues brasileiro fluente e jornalistico. Mantenha exatamente o formato [numero] TITULO: e RESUMO:. Nao adicione explicacoes.\n\n${textos}`;
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'llama3-8b-8192',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2500,
-        temperature: 0.2
-      }),
-      signal: AbortSignal.timeout(20000)
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const texto = data.choices?.[0]?.message?.content || '';
-    const resultado = itens.map(i => ({ ...i }));
-    const partes = texto.split(/\[(\d+)\]/);
-    for (let i = 1; i < partes.length; i += 2) {
-      const idx = parseInt(partes[i]);
-      const conteudo = partes[i + 1] || '';
-      const tituloMatch = conteudo.match(/TITULO:\s*(.+?)(?:\nRESUMO:|$)/s);
-      const resumoMatch = conteudo.match(/RESUMO:\s*([\s\S]+?)(?=\n\[|\s*$)/);
-      if (tituloMatch && idx < resultado.length && tituloMatch[1].trim())
-        resultado[idx].title = tituloMatch[1].trim();
-      if (resumoMatch && idx < resultado.length && resumoMatch[1].trim())
-        resultado[idx].desc = resumoMatch[1].trim().slice(0, 600);
-    }
-    return resultado;
-  } catch(e) { return null; }
-}
-
-async function traduzirComMyMemory(texto) {
-  try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto.slice(0, 500))}&langpair=en|pt-BR`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    const data = await res.json();
-    return data.responseData?.translatedText || texto;
-  } catch(e) { return texto; }
-}
-
-function jaPtBr(texto) {
-  const palavrasPt = ['de', 'da', 'do', 'que', 'em', 'para', 'com', 'uma', 'um', 'os', 'as', 'por', 'como', 'mas', 'seu', 'sua', 'isso', 'este', 'esta', 'nos', 'ao', 'pelo', 'pela'];
-  const palavras = texto.toLowerCase().split(/\s+/);
-  return palavras.filter(p => palavrasPt.includes(p)).length >= 2;
-}
+const PALAVRAS_EXCLUIR = [
+  "sale","discount","buy now","fashion","celebrity","recipe","sports score",
+  "nfl","nba","weather forecast","horoscope","lottery","casino","bitcoin",
+];
 
 export async function onRequest(context) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
+  const { env } = context;
+  const headers = { "Content-Type":"application/json","Access-Control-Allow-Origin":"*" };
+  try {
+    const [rss, newsdata] = await Promise.allSettled([
+      buscarTodosRSS(), buscarNewsData(env.NEWSDATA_API_KEY)
+    ]);
+    let todas = [];
+    if (rss.status==="fulfilled") todas = todas.concat(rss.value);
+    if (newsdata.status==="fulfilled") todas = todas.concat(newsdata.value);
+    const filtradas = todas.filter(n => isGeopolitica(n));
+    const semDup = removerDuplicatas(filtradas);
+    const top20 = semDup.slice(0,20);
+    const traduzidas = await Promise.allSettled(top20.map(n=>traduzirNoticia(n,env)));
+    const resultado = traduzidas.filter(r=>r.status==="fulfilled").map(r=>r.value);
+    return new Response(JSON.stringify({articles:resultado,total:resultado.length}),{headers});
+  } catch(err) {
+    return new Response(JSON.stringify({error:err.message,articles:[]}),{status:500,headers});
+  }
+}
+
+async function buscarTodosRSS() {
+  const r = await Promise.allSettled(FEEDS_RSS.map(url=>buscarUmRSS(url)));
+  return r.filter(x=>x.status==="fulfilled").flatMap(x=>x.value);
+}
+
+async function buscarUmRSS(url) {
+  const res = await fetch(url,{
+    headers:{"User-Agent":"Mozilla/5.0 (compatible; BrasilSemCensura/1.0)"},
+    signal:AbortSignal.timeout(8000)
+  });
+  return parseRSS(await res.text(), url);
+}
+
+function parseRSS(xml, fonte) {
+  const noticias=[];
+  for(const item of (xml.match(/<item>([\s\S]*?)<\/item>/g)||[]).slice(0,10)){
+    const titulo=extrairTag(item,"title"), link=extrairTag(item,"link");
+    if(titulo&&link) noticias.push({
+      titulo_original:limparHTML(titulo),
+      descricao_original:limparHTML(extrairTag(item,"description")||""),
+      url:link, fonte:new URL(fonte).hostname.replace(/^(www|feeds)\./,""),
+      data:new Date(extrairTag(item,"pubDate")||Date.now()).toISOString(),
+      verificado:true
+    });
+  }
+  return noticias;
+}
+
+function extrairTag(xml,tag){
+  const m=xml.match(new RegExp("<"+tag+"[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?</"+tag+">","i"));
+  return m?m[1].trim():"";
+}
+
+function limparHTML(s){
+  return s.replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<")
+    .replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim();
+}
+
+async function buscarNewsData(key){
+  if(!key) return [];
+  const res=await fetch("https://newsdata.io/api/1/news?apikey="+key+"&language=en&category=politics,world&size=10",
+    {signal:AbortSignal.timeout(8000)});
+  const d=await res.json();
+  return (d.results||[]).map(a=>({
+    titulo_original:a.title||"", descricao_original:a.description||"",
+    url:a.link||"", fonte:a.source_id||"newsdata",
+    data:a.pubDate||new Date().toISOString(), verificado:true
+  }));
+}
+
+function isGeopolitica(n){
+  const t=(n.titulo_original+" "+n.descricao_original).toLowerCase();
+  if(PALAVRAS_EXCLUIR.some(p=>t.includes(p))) return false;
+  return PALAVRAS_GEOPOLITICA.some(p=>t.includes(p));
+}
+
+function removerDuplicatas(ns){
+  const u=[];
+  for(const n of ns){
+    if(!u.some(x=>similaridade(x.titulo_original,n.titulo_original)>0.6)) u.push(n);
+  }
+  return u;
+}
+
+function similaridade(a,b){
+  const wa=new Set(a.toLowerCase().split(/\s+/));
+  const wb=new Set(b.toLowerCase().split(/\s+/));
+  return [...wa].filter(w=>wb.has(w)).length/Math.max(wa.size,wb.size);
+}
+
+async function traduzirNoticia(n,env){
+  const [titulo,descricao]=await Promise.all([
+    traduzir(n.titulo_original,env),
+    traduzir(n.descricao_original,env)
+  ]);
+  return {
+    ...n,
+    titulo:titulo||n.titulo_original,
+    descricao:descricao||n.descricao_original,
+    selo:"Verificado por Brasil Sem Censura"
   };
+}
 
-  if (context.request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' } });
-  }
-
-  const API_KEY = context.env.NEWSDATA_API_KEY;
-  const GROQ_KEY = context.env.GROQ_API_KEY;
-  let results = [];
-
-  // 1. NewsData.io
-  if (API_KEY && API_KEY !== 'your_newsdata_api_key_here') {
-    try {
-      const query = 'geopolitica OR guerra OR BRICS OR China OR Russia OR Brasil OR economia OR sancao OR nuclear OR eleicao';
-      const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&language=pt,en&q=${encodeURIComponent(query)}&size=10`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      const data = await res.json();
-      if (data.status === 'success' && data.results) {
-        results = data.results.map(item => ({
-          title: item.title || '',
-          desc: (item.description || item.content || '').slice(0, 600),
-          link: item.link || '#',
-          source: item.source_id || 'Global',
-          image: item.image_url || null
-        }));
+async function traduzir(texto,env){
+  if(!texto||texto.length<5) return texto;
+  if(env.GROQ_API_KEY){
+    try{
+      const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+env.GROQ_API_KEY},
+        body:JSON.stringify({
+          model:"llama3-8b-8192",
+          max_tokens:300,
+          temperature:0.3,
+          messages:[{role:"user",content:"Traduza para portugues brasileiro. Retorne APENAS a traducao:\n\n"+texto}]
+        }),
+        signal:AbortSignal.timeout(10000)
+      });
+      const d=await r.json();
+      if(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content){
+        return d.choices[0].message.content.trim();
       }
-    } catch(e) { console.error('NewsData erro:', e.message); }
+    }catch(_){}
   }
-
-  // 2. RSS em paralelo
-  if (results.length < 15) {
-    const rssFeeds = [
-      { url: 'https://www.aljazeera.com/xml/rss/all.xml', source: 'Al Jazeera' },
-      { url: 'https://theintercept.com/feed/?rss', source: 'The Intercept' },
-      { url: 'https://brasil.elpais.com/rss/brasil/portada.xml', source: 'El País BR' },
-      { url: 'https://www.rt.com/rss/news/', source: 'RT News' },
-    ];
-
-    const rssResults = await Promise.allSettled(
-      rssFeeds.map(async (feed) => {
-        const res = await fetch(feed.url, {
-          headers: { 'User-Agent': 'Mozilla/5.0' },
-          signal: AbortSignal.timeout(5000)
-        });
-        const xml = await res.text();
-        const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
-        const parsed = [];
-        for (const item of items.slice(0, 6)) {
-          const title = (item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || item.match(/<title>(.*?)<\/title>/) || [])[1] || '';
-          const desc  = (item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/) || item.match(/<description>(.*?)<\/description>/) || [])[1] || '';
-          const link  = (item.match(/<link>(.*?)<\/link>/) || [])[1] || '#';
-          if (title) parsed.push({ title: title.trim(), desc: desc.replace(/<[^>]+>/g, '').trim().slice(0, 600), link: link.trim(), source: feed.source, image: null });
-        }
-        return parsed;
-      })
-    );
-
-    for (const r of rssResults) {
-      if (r.status === 'fulfilled') results.push(...r.value);
-    }
-  }
-
-  if (results.length === 0) {
-    results = [{ title: 'Configure NEWSDATA_API_KEY', desc: 'Configure as chaves de API no Cloudflare Pages para ver noticias reais.', link: '#', source: 'Sistema', image: null }];
-  }
-
-  // 3. Filtrar por relevancia
-  const relevantes = results.filter(item => ehRelevante(item.title, item.desc));
-  const base = relevantes.length >= 8 ? relevantes : results; // fallback se filtrar demais
-
-  // 4. Remover duplicatas
-  const semDup = removerDuplicatas(base);
-
-  const finais = semDup.slice(0, 20);
-
-  // 5. Traducao
-  const precisamTraducao = finais
-    .map((item, i) => ({ item, i }))
-    .filter(({ item }) => !jaPtBr(item.title));
-
-  if (precisamTraducao.length > 0) {
-    let groqFuncionou = false;
-    if (GROQ_KEY) {
-      for (let i = 0; i < precisamTraducao.length; i += 5) {
-        const lote = precisamTraducao.slice(i, i + 5);
-        const traduzidos = await traduzirComGroq(lote.map(({ item }) => ({ ...item })), GROQ_KEY);
-        if (traduzidos) {
-          groqFuncionou = true;
-          lote.forEach(({ i: idx }, j) => { finais[idx] = traduzidos[j]; });
-        }
-      }
-    }
-    if (!groqFuncionou) {
-      await Promise.allSettled(
-        precisamTraducao.slice(0, 10).map(async ({ item, i: idx }) => {
-          const tituloTrad = await traduzirComMyMemory(item.title);
-          const descTrad = item.desc ? await traduzirComMyMemory(item.desc.slice(0, 300)) : '';
-          finais[idx] = { ...item, title: tituloTrad, desc: descTrad };
-        })
-      );
-    }
-  }
-
-  return new Response(JSON.stringify(finais), { status: 200, headers: corsHeaders });
+  try{
+    const r=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(texto.slice(0,500))+"&langpair=en|pt-BR");
+    const d=await r.json();
+    if(d.responseData&&d.responseData.translatedText) return d.responseData.translatedText;
+  }catch(_){}
+  return texto;
 }
