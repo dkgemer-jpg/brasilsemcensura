@@ -1,8 +1,8 @@
-// fetch-news.js v7 — Brasil Sem Censura
-// Corrigido: tratamento robusto de JSON e erros de API, cache desativado para atualização em tempo real, ordenação por data de publicação
+// fetch-news.js v9 — Brasil Sem Censura
+// SOLUÇÃO DEFINITIVA: Cache Busting + Ordenação por Data + Fallback de Tempo + Atualização Diferenciada (Premium/Grátis)
 
 export async function onRequest(context) {
-  const { env } = context;
+  const { env, request } = context;
 
   const NEWSDATA_API_KEY = env.NEWSDATA_API_KEY;
   const GROQ_API_KEY = env.GROQ_API_KEY;
@@ -14,26 +14,49 @@ export async function onRequest(context) {
     });
   }
 
+  const url = new URL(request.url);
+  const isPremium = url.searchParams.get("premium") === "true"; // Verifica se o usuário é Premium
+
+  // Define o tempo de cache baseado no status Premium
+  const cacheDuration = isPremium ? 1800 : 3600; // 30 minutos para Premium, 1 hora para Grátis
+
+  // Cache Busting: Adiciona um número aleatório para forçar a Cloudflare e a API a buscarem dados novos
+  const cacheBuster = Math.random().toString(36).substring(7);
+  const timestamp = new Date().getTime();
+
   const keywords = [
     "geopolitica", "guerra", "otan", "nato", "russia", "ucrania", "china", "eua", "israel",
     "palestina", "iran", "siria", "africa", "asia", "america latina", "brasil", "politica",
-    "economia", "sancoes", "diplomacia", "nuclear", "exercito", "militares", "crise",
-    "eleicoes", "governo", "presidente", "congresso", "senado", "ministerio", "corrupcao",
-    "inflacao", "dolar", "petroleo", "gas", "energia", "tecnologia", "ia", "inteligencia artificial",
-    "espionagem", "cyber", "hacker", "migracao", "refugiados", "clima", "catastrofe"
+    "economia", "sancoes", "diplomacia", "nuclear", "exercito", "militares", "crise"
   ];
 
-  const query = keywords.slice(0, 5).join(" OR ");
+  // Sorteia 5 palavras-chave diferentes a cada requisição para variar os resultados
+  const shuffled = keywords.sort(() => 0.5 - Math.random());
+  const query = shuffled.slice(0, 5).join(" OR ");
 
   try {
+    // Chamada da API com parâmetros para forçar atualização:
+    // 1. &sort=pubDate (Mais recentes primeiro)
+    // 2. &cb=${cacheBuster} (Cache Busting para a API)
     const newsRes = await fetch(
-      `https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=${encodeURIComponent(query)}&language=pt,en&category=politics,world&size=20&sort=pubDate`
-    ); // Adicionado &sort=pubDate para garantir as notícias mais recentes
+      `https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=${encodeURIComponent(query)}&language=pt,en&category=politics,world&size=20&sort=pubDate&cb=${cacheBuster}`,
+      {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      }
+    );
     const newsData = await newsRes.json();
 
     if (!newsData.results || newsData.results.length === 0) {
-      return new Response(JSON.stringify({ articles: [] }), {
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+      return new Response(JSON.stringify({ articles: [], message: "Nenhum resultado novo encontrado." }), {
+        headers: { 
+          "Content-Type": "application/json", 
+          "Access-Control-Allow-Origin": "*",
+          "Cache-Control": `public, max-age=${cacheDuration}` // Cache baseado no status Premium
+        }
       });
     }
 
@@ -64,18 +87,17 @@ Responda APENAS com JSON valido no formato:
 
           const groqData = await groqRes.json();
           let raw = groqData.choices?.[0]?.message?.content || "{}";
-          
-          // Limpeza robusta de JSON para evitar erros de sintaxe
           raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+          
           let parsed = {};
           try {
             parsed = JSON.parse(raw);
           } catch (e) {
-            console.error("Erro ao parsear JSON do Groq:", e);
+            parsed = { titulo: article.title, resumo: article.description || "" };
           }
 
           return {
-            id: article.article_id || Math.random().toString(36).slice(2),
+            id: article.article_id || `art-${timestamp}-${Math.random().toString(36).substring(7)}`,
             titulo: parsed.titulo || article.title,
             resumo: parsed.resumo || article.description || "",
             relevancia: parsed.relevancia || "media",
@@ -86,59 +108,29 @@ Responda APENAS com JSON valido no formato:
             data: article.pubDate || new Date().toISOString()
           };
         } catch (err) {
-          // Fallback: MyMemory traducao
-          try {
-            const myRes = await fetch(
-              `https://api.mymemory.translated.net/get?q=${encodeURIComponent(article.title)}&langpair=en|pt-BR`
-            );
-            const myData = await myRes.json();
-            return {
-              id: article.article_id || Math.random().toString(36).slice(2),
-              titulo: myData.responseData?.translatedText || article.title,
-              resumo: article.description || "",
-              relevancia: "media",
-              selo: "Verificado por Brasil Sem Censura",
-              fonte: article.source_id || "Desconhecida",
-              url: article.link || "#",
-              imagem: article.image_url || null,
-              data: article.pubDate || new Date().toISOString()
-            };
-          } catch {
-            return {
-              id: article.article_id || Math.random().toString(36).slice(2),
-              titulo: article.title,
-              resumo: article.description || "",
-              relevancia: "media",
-              selo: "Verificado por Brasil Sem Censura",
-              fonte: article.source_id || "Desconhecida",
-              url: article.link || "#",
-              imagem: article.image_url || null,
-              data: article.pubDate || new Date().toISOString()
-            };
-          }
+          return {
+            id: article.article_id || `fallback-${timestamp}`,
+            titulo: article.title,
+            resumo: article.description || "",
+            relevancia: "media",
+            selo: "Verificado por Brasil Sem Censura",
+            fonte: article.source_id || "Desconhecida",
+            url: article.link || "#",
+            imagem: article.image_url || null,
+            data: article.pubDate || new Date().toISOString()
+          };
         }
       })
     );
 
-    // Filtra duplicatas por similaridade
-    const unicos = [];
-    for (const art of articles) {
-      const similar = unicos.some(u => {
-        const a = u.titulo.toLowerCase();
-        const b = art.titulo.toLowerCase();
-        const wordsA = new Set(a.split(" "));
-        const wordsB = b.split(" ");
-        const common = wordsB.filter(w => wordsA.has(w)).length;
-        return common / Math.max(wordsA.size, wordsB.length) > 0.6;
-      });
-      if (!similar) unicos.push(art);
-    }
-
-    return new Response(JSON.stringify({ articles: unicos }), {
+    // Retorna a resposta com cabeçalhos anti-cache agressivos e cache diferenciado
+    return new Response(JSON.stringify({ articles: articles, updated_at: timestamp }), {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        "Cache-Control": `public, max-age=${cacheDuration}, stale-while-revalidate=${cacheDuration * 2}`,
+        "Pragma": "no-cache",
+        "Expires": "0"
       }
     });
 
