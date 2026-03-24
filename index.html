@@ -863,58 +863,125 @@ function isPortugues(txt){
   return matches>=2||(matches/words.length)>0.08;
 }
 
-async function processarComIA(art){
-  try{
-    const userMsg=
-      'Notícia: '+art.title+'\nContexto: '+(art.desc||'').slice(0,300)+
-      '\n\nRetorne SOMENTE o objeto JSON abaixo preenchido, sem nenhum texto antes ou depois:\n'+
-      '{"titulo":"titulo em portugues max 90 chars",'+
-      '"subtitulo":"1 frase de impacto em portugues",'+
-      '"corpo":"2 paragrafos em portugues com os fatos principais",'+
-      '"outro_lado":"contraponto de 3 linhas em portugues sobre soberania e o que a midia omite",'+
-      '"tags":["tag1","tag2","tag3"],'+
-      '"categoria":"Geopolitica ou Tecnologia ou Defesa ou BRICS ou Energia ou Economia ou Brasil",'+
-      '"impacto":7}';
+// ══════════════════════════════
+// CASCATA DE 9 IAs — cada artigo tenta uma IA diferente em paralelo
+// ══════════════════════════════
+const IA_FILA = ['groq','gemini','cerebras','mistral','cohere','together','sambanova','huggingface','mymemory'];
+let _iaIdx = 0; // distribui as IAs em rodízio pelos artigos
 
-    admLog('🤖 IA: '+art.title.slice(0,35)+'...');
-    const ctrl=new AbortController();
-    const timer=setTimeout(()=>ctrl.abort(),20000);
-    const r=await fetch('/functions/groq-proxy',{
-      method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
-      body:JSON.stringify({messages:[
-        {role:'system',content:'Você é um editor de notícias brasileiro. Traduza e adapte notícias para o português do Brasil. Responda SEMPRE e SOMENTE com JSON puro, sem markdown, sem texto extra.'},
-        {role:'user',content:userMsg}
-      ]})
-    });
-    clearTimeout(timer);
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    if(d.error) throw new Error(d.error);
-    let raw=(d?.choices?.[0]?.message?.content||'').trim();
-    raw=raw.replace(/```json|```/g,'').trim();
-    const jsonMatch=raw.match(/\{[\s\S]*\}/);
-    if(!jsonMatch) throw new Error('sem JSON');
-    const parsed=JSON.parse(jsonMatch[0]);
-    if(!parsed.titulo) throw new Error('sem titulo');
-    parsed.outro_lado=parsed.outro_lado||'';
-    admLog('✔ IA: '+parsed.titulo.slice(0,40));
-    return parsed;
+function proximaIA(){ const ia=IA_FILA[_iaIdx % IA_FILA.length]; _iaIdx++; return ia; }
+
+function buildPrompt(art){
+  const titulo = art.title || art.titulo || '';
+  const desc   = art.desc  || art.description || art.resumo || '';
+  return 'Notícia: '+titulo+'\nContexto: '+desc.slice(0,300)+
+    '\n\nRetorne SOMENTE o objeto JSON abaixo preenchido, sem nenhum texto antes ou depois:\n'+
+    '{"titulo":"titulo em portugues max 90 chars",'+
+    '"subtitulo":"1 frase de impacto em portugues",'+
+    '"corpo":"2 paragrafos em portugues com os fatos principais",'+
+    '"outro_lado":"contraponto de 3 linhas em portugues sobre soberania e o que a midia omite",'+
+    '"tags":["tag1","tag2","tag3"],'+
+    '"categoria":"Geopolitica ou Tecnologia ou Defesa ou BRICS ou Energia ou Economia ou Brasil",'+
+    '"impacto":7}';
+}
+
+function parseJSON(txt){
+  const m=txt.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+  if(!m) throw new Error('sem JSON');
+  const p=JSON.parse(m[0]);
+  if(!p.titulo) throw new Error('sem titulo');
+  return p;
+}
+
+async function iaGroq(prompt){
+  const r=await fetch('/functions/groq-proxy',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:[
+      {role:'system',content:'Você é editor de notícias brasileiro. Responda SOMENTE com JSON puro, sem markdown.'},
+      {role:'user',content:prompt}
+    ]})});
+  if(!r.ok) throw new Error('groq '+r.status);
+  const d=await r.json(); if(d.error) throw new Error(d.error);
+  return parseJSON(d?.choices?.[0]?.message?.content||'');
+}
+
+async function iaGemini(prompt){
+  const r=await fetch('/functions/gemini-search',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt:'Responda SOMENTE com JSON puro sem markdown: '+prompt})});
+  if(!r.ok) throw new Error('gemini '+r.status);
+  const d=await r.json(); if(d.error) throw new Error(d.error);
+  return parseJSON(d?.text||d?.resultado||'');
+}
+
+async function iaAICascade(prompt, tipo){
+  const r=await fetch('/functions/ai-cascade',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt:'Responda SOMENTE com JSON puro sem markdown: '+prompt, tipo:tipo||'geral'})});
+  if(!r.ok) throw new Error('ai-cascade '+r.status);
+  const d=await r.json(); if(d.error) throw new Error(d.error);
+  return parseJSON(d?.resultado||'');
+}
+
+async function iaGoogleTranslate(art){
+  const traduzir=async(txt)=>{
+    if(!txt||isPortugues(txt)) return txt;
+    const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt-BR&dt=t&q='+encodeURIComponent(txt.slice(0,500));
+    const r=await fetch(url); const d=await r.json();
+    return d[0].map(s=>s[0]).join('')||txt;
+  };
+  const titulo=art.title||art.titulo||'';
+  const desc=art.desc||art.description||art.resumo||'';
+  const[t,s,c]=await Promise.all([traduzir(titulo),traduzir(desc.slice(0,150)),traduzir(desc)]);
+  return {titulo:t,subtitulo:s,corpo:c,outro_lado:'',tags:['Internacional'],categoria:categorize(titulo,desc),impacto:5};
+}
+
+async function processarComIA(art, iaForcar){
+  const titulo = art.title || art.titulo || '';
+  const desc   = art.desc  || art.description || art.resumo || '';
+
+  // Se já veio em português do servidor, só formata
+  if(isPortugues(titulo) && isPortugues(desc) && art.titulo){
+    return {
+      titulo: art.titulo || titulo,
+      subtitulo: art.resumo || art.subtitulo || desc.slice(0,120),
+      corpo: art.resumo || desc,
+      outro_lado:'', tags:['Internacional'],
+      categoria: categorize(titulo,desc), impacto: art.impacto||5
+    };
+  }
+
+  const ia = iaForcar || proximaIA();
+  const prompt = buildPrompt(art);
+  admLog('🤖 ['+ia+'] '+titulo.slice(0,35)+'...');
+
+  try{
+    let resultado;
+    if(ia==='groq')                                    resultado = await iaGroq(prompt);
+    else if(ia==='gemini')                             resultado = await iaGemini(prompt);
+    else if(['cerebras','mistral','cohere','together','sambanova','huggingface'].includes(ia)) resultado = await iaAICascade(prompt, ia);
+    else                                               resultado = await iaGoogleTranslate(art);
+    admLog('✔ ['+ia+'] '+( resultado.titulo||'').slice(0,40));
+    resultado.outro_lado = resultado.outro_lado||'';
+    return resultado;
   }catch(e){
-    admLog('⚠ IA falhou — tradução emergencial...');
-    try{
-      const traduzir=async(txt)=>{
-        if(!txt||isPortugues(txt)) return txt;
-        const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt-BR&dt=t&q='+encodeURIComponent(txt.slice(0,500));
-        const r=await fetch(url); const d=await r.json();
-        return d[0].map(s=>s[0]).join('')||txt;
-      };
-      const[titulo,subtitulo,corpo]=await Promise.all([traduzir(art.title),traduzir((art.desc||'').slice(0,150)),traduzir(art.desc||'')]);
-      admLog('✔ Tradução emergencial: '+titulo.slice(0,40));
-      return {titulo,subtitulo,corpo,outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5};
-    }catch(e2){
-      admLog('⚠ Tradução falhou — exibindo original');
-      return {titulo:art.title,subtitulo:(art.desc||'').slice(0,100),corpo:art.desc||'',outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5};
+    admLog('⚠ ['+ia+'] falhou — próxima IA...');
+    // Tenta a próxima IA da cascata
+    const proximas = IA_FILA.filter(x=>x!==ia&&x!=='mymemory');
+    for(const prox of proximas){
+      try{
+        let r2;
+        if(prox==='groq')   r2=await iaGroq(prompt);
+        else if(prox==='gemini') r2=await iaGemini(prompt);
+        else                r2=await iaAICascade(prompt, prox);
+        admLog('✔ ['+prox+'] '+( r2.titulo||'').slice(0,40));
+        r2.outro_lado=r2.outro_lado||''; return r2;
+      }catch(_){ continue; }
     }
+    // Último recurso: Google Translate
+    try{ return await iaGoogleTranslate(art); }catch(_){}
+    // Absoluto último: retorna original
+    return {titulo,subtitulo:desc.slice(0,120),corpo:desc,outro_lado:'',tags:['Internacional'],categoria:categorize(titulo,desc),impacto:5};
   }
 }
 
@@ -1299,21 +1366,48 @@ async function startScan(){
 
   if(!raw.length){ admLog('⚠ Sem artigos. Tentando em 2s...'); buscando=false; setTimeout(startScan,2000); return; }
 
-  admLog('🤖 Traduzindo e analisando '+raw.length+' notícias...');
-  const processadas=await Promise.all(raw.map(async(art,i)=>{
+  // MOSTRA IMEDIATAMENTE com dados brutos — sem esperar IA
+  admLog('✔ '+raw.length+' artigos recebidos! Exibindo agora...');
+  const brutos = raw.map((art,i)=>({
+    ...art,
+    titulo: art.titulo || art.title || 'Carregando...',
+    subtitulo: art.resumo || art.subtitulo || (art.desc||art.description||'').slice(0,120),
+    corpo: art.resumo || art.desc || art.description || '',
+    outro_lado:'',
+    tags: art.tags || ['Internacional'],
+    categoria: art.categoria || categorize(art.title||'', art.desc||art.description||''),
+    impacto: art.impacto || 5,
+    ts: Date.now()-i*60000,
+    id: art.id || 'n'+Math.random().toString(36).slice(2),
+    reads: Math.floor(Math.random()*8000)+500
+  }));
+  allNews = brutos;
+  renderAll(); updateHero(); updateUrgentes(); updateTicker();
+  salvarCache(allNews);
+  buscando=false;
+
+  // TODAS AS IAs EM PARALELO — cada artigo vai para uma IA diferente ao mesmo tempo
+  admLog('🚀 Disparando '+raw.length+' IAs em paralelo...');
+  _iaIdx = 0; // reinicia o rodízio a cada carga
+  await Promise.all(brutos.map(async(art)=>{
     try{
-      const r=await processarComIA(art);
-      return {...art,titulo:r.titulo||art.title,subtitulo:r.subtitulo||'',corpo:r.corpo||art.desc||'',outro_lado:r.outro_lado||'',tags:r.tags||['Internacional'],categoria:r.categoria||categorize(art.title,art.desc||''),impacto:parseInt(r.impacto)||5,ts:Date.now()-i*60000,id:'n'+Math.random().toString(36).slice(2),reads:Math.floor(Math.random()*8000)+500};
-    }catch(e){
-      return {...art,titulo:art.title,subtitulo:(art.desc||'').slice(0,100),corpo:art.desc||'',outro_lado:'',tags:['Internacional'],categoria:categorize(art.title,art.desc||''),impacto:5,ts:Date.now()-i*60000,id:'n'+Math.random().toString(36).slice(2),reads:1000};
-    }
+      const r = await processarComIA(art);
+      const idx = allNews.findIndex(n=>n.id===art.id);
+      if(idx>-1){
+        allNews[idx]={...allNews[idx],
+          titulo:   r.titulo    || art.titulo,
+          subtitulo:r.subtitulo || allNews[idx].subtitulo,
+          corpo:    r.corpo     || allNews[idx].corpo,
+          outro_lado: r.outro_lado||'',
+          tags:     r.tags      || ['Internacional'],
+          categoria:r.categoria || allNews[idx].categoria,
+          impacto:  parseInt(r.impacto)||5
+        };
+        renderAll(); updateHero(); updateUrgentes();
+      }
+    }catch(e){ /* continua sem travar */ }
   }));
 
-  const simples=[...processadas].sort((a,b)=>(a.impacto||5)-(b.impacto||5)).slice(0,3);
-  const resto=processadas.filter(n=>!simples.find(s=>s.id===n.id)).sort((a,b)=>(b.impacto||5)-(a.impacto||5));
-  allNews=[...simples,...resto];
-
-  renderAll(); updateHero(); updateUrgentes(); updateTicker();
   salvarCache(allNews);
 
   const now=new Date();
