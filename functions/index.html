@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brasil Sem Censura — Informação Soberana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── VARIÁVEIS ── */
+    :root {
+      --gold: #f5c842;
+      --gold2: #f59e0b;
+      --bg: #0a0a0f;
+      --bg2: #12121f;
+      --bg3: #1a1a2e;
+      --text: #e0e0e0;
+      --muted: #a89ec9;
+      --red: #e74c3c;
+      --border: rgba(245,200,66,.18);
+      --card-shadow: 0 4px 24px rgba(0,0,0,.45);
+    }
+
+    /* ── RESET / BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── RUÍDO DE FUNDO ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .4;
+    }
+
+    /* ── TICKER ── */
+    .ticker-wrap {
+      background: var(--gold);
+      color: var(--bg);
+      overflow: hidden;
+      white-space: nowrap;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .95em;
+      letter-spacing: 1.5px;
+      position: relative;
+      z-index: 10;
+    }
+    .ticker-inner {
+      display: inline-block;
+      animation: ticker 30s linear infinite;
+      padding: 6px 0;
+    }
+    @keyframes ticker {
+      0%   { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg2);
+      border-bottom: 2px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2em;
+      color: var(--gold);
+      letter-spacing: 3px;
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(245,200,66,.3);
+    }
+    .live-tag {
+      background: var(--red);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: .75em;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 2px;
+      animation: pulse-red 2s ease-in-out infinite;
+    }
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,.5); }
+      50%       { box-shadow: 0 0 0 8px rgba(231,76,60,0); }
+    }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: .85em;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--gold); }
+    .nav-update {
+      color: var(--muted);
+      font-size: .75em;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, var(--bg3) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--bg));
+    }
+    .hero-label {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .8em;
+      letter-spacing: 4px;
+      padding: 4px 16px;
+      margin-bottom: 20px;
+      border-radius: 2px;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4em, 6vw, 4.2em);
+      color: var(--gold);
+      letter-spacing: 4px;
+      line-height: 1.05;
+      text-shadow: 0 0 60px rgba(245,200,66,.2);
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.1em;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8em;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .hero-stat-label { font-size: .72em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── CATEGORIAS ── */
+    .cat-bar {
+      display: flex;
+      gap: 10px;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      background: var(--bg2);
+    }
+    .cat-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 2px;
+      font-size: .8em;
+      padding: 6px 18px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .2s;
+    }
+    .cat-btn:hover, .cat-btn.active {
+      background: var(--gold);
+      color: var(--bg);
+      border-color: var(--gold);
+    }
+
+    /* ── LOADING ── */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      gap: 20px;
+    }
+    .loading-spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1em;
+      letter-spacing: 3px;
+      color: var(--muted);
+    }
+
+    /* ── NEWS GRID ── */
+    .news-section { padding: 32px; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3em;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 24px;
+      border-left: 3px solid var(--gold);
+      padding-left: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 22px;
+    }
+
+    /* ── CARD ── */
+    .news-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .news-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .news-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.6);
+      border-color: rgba(245,200,66,.35);
+    }
+    .news-card:hover::before { opacity: 1; }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-cat {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .7em;
+      letter-spacing: 2px;
+      color: var(--gold);
+      background: rgba(245,200,66,.08);
+      border: 1px solid rgba(245,200,66,.2);
+      padding: 2px 10px;
+      border-radius: 2px;
+    }
+    .card-bias {
+      font-size: .68em;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+    .bias-neutro     { background: rgba(100,200,100,.12); color: #6ec87a; border: 1px solid rgba(100,200,100,.2); }
+    .bias-ocidente   { background: rgba(60,130,230,.12);  color: #6aa3f5; border: 1px solid rgba(60,130,230,.2); }
+    .bias-russia     { background: rgba(230,60,60,.12);   color: #f56a6a; border: 1px solid rgba(230,60,60,.2); }
+
+    .news-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.25em;
+      color: var(--text);
+      letter-spacing: 1px;
+      line-height: 1.25;
+    }
+    .news-card p {
+      font-size: .875em;
+      color: var(--muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .btn-read {
+      flex: 1;
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      color: var(--bg);
+      border: none;
+      padding: 10px 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .95em;
+      letter-spacing: 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      text-decoration: none;
+      text-align: center;
+      display: block;
+      transition: opacity .2s;
+    }
+    .btn-read:hover { opacity: .85; }
+    .btn-share {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: .85em;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-share:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Blur para paywall */
+    .news-blur {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+    }
+    .news-blur::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,15,.5);
+      z-index: 2;
+    }
+
+    /* ── SEÇÃO APOIE ── */
+    .support-section {
+      margin: 10px 32px 40px;
+      background: linear-gradient(135deg, var(--bg3), var(--bg2));
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+    }
+    .support-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2em;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+    .support-section p { color: var(--muted); font-size: .95em; line-height: 1.7; margin-bottom: 8px; }
+    .btn-apoie {
+      display: inline-block;
+      margin-top: 20px;
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      color: var(--bg);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2em;
+      letter-spacing: 3px;
+      padding: 14px 40px;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: opacity .2s;
+    }
+    .btn-apoie:hover { opacity: .85; }
+
+    /* ── COLABORADORES ── */
+    .colab-section {
+      margin: 0 32px 40px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+    }
+    .colab-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4em;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+    .colab-section p { color: var(--muted); font-size: .88em; margin-bottom: 20px; }
+    .colab-form { display: flex; gap: 10px; flex-wrap: wrap; }
+    .colab-input {
+      flex: 1;
+      min-width: 220px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: .9em;
+      font-family: 'Open Sans', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .colab-input:focus { border-color: var(--gold); }
+    .btn-colab {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1em;
+      letter-spacing: 2px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-colab:hover { background: var(--gold); color: var(--bg); }
+    .colab-msg { margin-top: 10px; font-size: .85em; color: var(--gold); min-height: 20px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: .82em;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── SCROLL TOP ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--gold);
+      color: var(--bg);
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3em;
+      text-decoration: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+      z-index: 200;
+      box-shadow: 0 4px 16px rgba(245,200,66,.3);
+    }
+    #scrollTop.show { opacity: 1; pointer-events: all; }
+
+    /* ── PAYWALL OVERLAY ── */
+    .paywall-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.94);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .paywall-box {
+      background: var(--bg2);
+      border: 1px solid rgba(245,200,66,.35);
+      border-top: 3px solid var(--gold);
+      max-width: 420px; width: 100%;
+      padding: 40px 36px;
+      text-align: center;
+      border-radius: 6px;
+      animation: slideUp .3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .paywall-box .icon { font-size: 52px; margin-bottom: 12px; }
+    .paywall-box h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2em;
+      letter-spacing: 4px;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .paywall-box p { color: var(--muted); font-size: .9em; line-height: 1.6; margin-bottom: 24px; }
+    .paywall-box button {
+      width: 100%;
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      color: var(--bg);
+      border: none;
+      padding: 14px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2em;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: opacity .2s;
+    }
+    .paywall-box button:hover { opacity: .85; }
+
+    /* ── POPUP BOAS-VINDAS ── */
+    .welcome-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.88);
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn .4s ease;
+    }
+    .welcome-box {
+      background: var(--bg2);
+      border: 1px solid rgba(245,200,66,.35);
+      border-top: 3px solid var(--gold);
+      max-width: 440px; width: 100%;
+      padding: 40px 36px;
+      text-align: center;
+      border-radius: 6px;
+      animation: slideUp .4s ease;
+      position: relative;
+    }
+    .welcome-box .close-btn {
+      position: absolute;
+      top: 12px; right: 16px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.4em;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .welcome-box .close-btn:hover { color: var(--text); }
+    .welcome-badge {
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      color: var(--bg);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .8em;
+      letter-spacing: 3px;
+      padding: 4px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .welcome-box h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.9em;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .welcome-box p { color: var(--muted); font-size: .9em; line-height: 1.6; margin-bottom: 16px; }
+    .countdown-wrap { margin: 16px 0; }
+    .countdown-label { font-size: .75em; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+    .countdown-time {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.4em;
+      color: var(--red);
+      letter-spacing: 4px;
+    }
+    .welcome-box button {
+      width: 100%;
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      color: var(--bg);
+      border: none;
+      padding: 14px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1em;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 8px;
+      transition: opacity .2s;
+    }
+    .welcome-box button:hover { opacity: .85; }
+    .welcome-skip {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: .78em;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      transition: color .2s;
+    }
+    .welcome-skip:hover { color: var(--text); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 80px; right: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      color: var(--text);
+      padding: 14px 20px;
+      font-size: .85em;
+      border-radius: 4px;
+      z-index: 9000;
+      max-width: 320px;
+      box-shadow: var(--card-shadow);
+      animation: slideInRight .3s ease;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(120%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 640px) {
+      header { padding: 12px 16px; flex-direction: column; gap: 10px; }
+      nav { gap: 14px; flex-wrap: wrap; justify-content: center; }
+      .hero { padding: 40px 16px; }
+      .news-section { padding: 20px 16px; }
+      .support-section, .colab-section { margin-left: 16px; margin-right: 16px; padding: 24px 18px; }
+      .cat-bar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker-inner" id="ticker-text">
+    ⚡ BRASIL SEM CENSURA &nbsp;•&nbsp; INFORMAÇÃO SOBERANA, SEM FILTROS &nbsp;•&nbsp; CARREGANDO ÚLTIMAS NOTÍCIAS... &nbsp;•&nbsp;
+  </span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo">BRASIL SEM CENSURA</div>
+    <span class="live-tag">⚡ AO VIVO</span>
+  </div>
+  <nav>
+    <a href="#" data-cat="Todos">Início</a>
+    <a href="#" data-cat="Geopolítica">Geopolítica</a>
+    <a href="#" data-cat="Economia">Economia</a>
+    <a href="#" data-cat="Tecnologia">Tecnologia</a>
+    <a href="#colab">Colaborar</a>
+    <a href="#apoie">Apoiar</a>
+    <span class="nav-update" id="lastUpdate"></span>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">PORTAL INDEPENDENTE</div>
+  <h1>Informação Soberana,<br>Sem Filtros, Sem Censura</h1>
+  <p>As notícias que a grande mídia não mostra, analisadas por inteligência artificial em tempo real.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="stat-news">—</div>
+      <div class="hero-stat-label">Notícias hoje</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">9</div>
+      <div class="hero-stat-label">IAs em cascata</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">Real‑time</div>
+      <div class="hero-stat-label">Atualização</div>
+    </div>
+  </div>
+</section>
+
+<!-- BARRA DE CATEGORIAS -->
+<div class="cat-bar" id="cat-bar">
+  <button class="cat-btn active" data-cat="Todos">Todos</button>
+  <button class="cat-btn" data-cat="Geopolítica">Geopolítica</button>
+  <button class="cat-btn" data-cat="Economia">Economia</button>
+  <button class="cat-btn" data-cat="Tecnologia">Tecnologia</button>
+  <button class="cat-btn" data-cat="Geral">Geral</button>
+</div>
+
+<!-- NOTÍCIAS -->
+<section class="news-section">
+  <div class="section-title">
+    <span>ÚLTIMAS NOTÍCIAS</span>
+    <span style="font-size:.75em; color: var(--muted); letter-spacing:1px;" id="news-count"></span>
+  </div>
+  <div id="news-container" class="news-grid">
+    <!-- Loading -->
+    <div class="loading-state" style="grid-column:1/-1" id="loading-el">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BUSCANDO NOTÍCIAS VIA IA...</div>
+    </div>
+  </div>
+</section>
+
+<!-- APOIE -->
+<section class="support-section" id="apoie">
+  <h2>Apoie o Portal</h2>
+  <p>Apoie com <strong style="color:var(--gold)">R$ 10</strong> e desbloqueie <strong style="color:var(--gold)">30 dias</strong> de acesso completo.</p>
+  <p>Leia tudo, compartilhe e baixe as notícias. Anônimo, via Pix.</p>
+  <p style="font-size:.8em; margin-top:8px;">🔒 Pagamento via Mercado Pago · Seus dados não são compartilhados com o portal</p>
+  <button class="btn-apoie" onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">APOIAR AGORA →</button>
+</section>
+
+<!-- COLABORADORES -->
+<section class="colab-section" id="colab">
+  <h2>📡 Seja um Colaborador</h2>
+  <p>Você é assinante? Envie um link de notícia para ser analisado pela nossa IA. Juntos construímos a informação soberana.</p>
+  <div class="colab-form">
+    <input type="url" class="colab-input" id="colab-url" placeholder="Cole o link da notícia aqui...">
+    <button class="btn-colab" onclick="enviarColaboracao()">ENVIAR →</button>
+  </div>
+  <div class="colab-msg" id="colab-msg"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:6px; font-family:'Bebas Neue',sans-serif; font-size:1.2em; letter-spacing:3px; color:var(--gold);">BRASIL SEM CENSURA</p>
+  <p>&copy; 2026 Brasil Sem Censura. Todos os direitos reservados.</p>
+  <p style="margin-top:6px; font-size:.78em;">Informação verificada por IA · <a href="#apoie">Torne-se Premium</a> · <a href="#colab">Colaborar</a></p>
+</footer>
+
+<!-- SCROLL TOP -->
+<a href="#" id="scrollTop">↑</a>
+
+<!-- ══════════════════════════════════════════════════ -->
+<script>
+  /* ── CONFIG ── */
+  const OWNER_SECRET = 'DKGEMERBR';
+  const OWNER_TOKEN  = 'YOUR_OWNER_TOKEN_HERE';
+
+  /* ── ESTADO ── */
+  let allNews        = [];
+  let filteredNews   = [];
+  let buscando       = false;
+  let newsReadCount  = parseInt(localStorage.getItem('bsc_read_count') || '0');
+  let currentCat     = 'Todos';
+
+  /* ── UTILS ── */
+  const $ = id => document.getElementById(id);
+  function admLog(msg) { console.log(`[BSC] ${msg}`); }
+
+  function showToast(msg, duration = 3500) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), duration);
+  }
+
+  /* ── CACHE ── */
+  function salvarCache(news) {
+    try {
+      localStorage.setItem('bsc_news_cache', JSON.stringify(news));
+      localStorage.setItem('bsc_news_cache_time', Date.now());
+    } catch(e) {}
+  }
+  function carregarCache() {
+    try {
+      const c = localStorage.getItem('bsc_news_cache');
+      return c ? JSON.parse(c) : [];
+    } catch(e) { return []; }
+  }
+
+  /* ── TOKEN / PREMIUM ── */
+  function checkExpiry() {
+    const exp = localStorage.getItem('bsc_expires');
+    if (exp && Date.now() > parseInt(exp)) {
+      localStorage.removeItem('bsc_token');
+      localStorage.removeItem('bsc_expires');
+      admLog('Token expirado.');
+    }
+  }
+  function isUserPremium() {
+    const token   = localStorage.getItem('bsc_token');
+    const expires = localStorage.getItem('bsc_expires');
+    return !!(token && expires && Date.now() < parseInt(expires));
+  }
+  function checkURLToken() {
+    const p    = new URLSearchParams(window.location.search);
+    const dono = p.get('dono');
+    if (dono && dono.toUpperCase() === OWNER_SECRET) {
+      localStorage.setItem('bsc_token',   OWNER_TOKEN);
+      localStorage.setItem('bsc_expires', String(Date.now() + 99999 * 86400000));
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return 'owner';
+    }
+    const t = p.get('token'), e = p.get('expires');
+    if (t && e) {
+      localStorage.setItem('bsc_token',   t);
+      localStorage.setItem('bsc_expires', e);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return 'paid';
+    }
+    return false;
+  }
+
+  /* ── CATEGORIZAR ── */
+  function categorize(titulo, resumo) {
+    const t = (titulo + ' ' + resumo).toLowerCase();
+    if (/guerra|geopolítica|otan|nato|conflito|diplomacia|ucrânia|rússia|china|israel|oriente médio/.test(t)) return 'Geopolítica';
+    if (/economia|inflação|dólar|mercado|pib|banco central|juros|fiscal|bolsa/.test(t))                      return 'Economia';
+    if (/tecnologia|inteligência artificial|ia|chip|cyber|hack|digital|software|startup/.test(t))            return 'Tecnologia';
+    return 'Geral';
+  }
+
+  /* ── BIAS BADGE ── */
+  function biasBadge(titulo, resumo) {
+    const t = (titulo + ' ' + resumo).toLowerCase();
+    if (/rússia|kremlin|moscou|putin/.test(t))        return '<span class="card-bias bias-russia">Pró-Rússia</span>';
+    if (/otan|nato|ocidente|washington|ue|europa/.test(t)) return '<span class="card-bias bias-ocidente">Pró-Ocidente</span>';
+    return '<span class="card-bias bias-neutro">Neutro</span>';
+  }
+
+  /* ── RENDER ── */
+  function renderAll() {
+    const container = $('news-container');
+    if (!container) return;
+
+    filteredNews = currentCat === 'Todos'
+      ? allNews
+      : allNews.filter(a => (a.categoria || categorize(a.titulo, a.resumo)) === currentCat);
+
+    container.innerHTML = '';
+    $('loading-el') && $('loading-el').remove();
+
+    if (!filteredNews.length) {
+      container.innerHTML = `<div class="loading-state" style="grid-column:1/-1"><div class="loading-text">NENHUMA NOTÍCIA ENCONTRADA</div></div>`;
+      return;
+    }
+
+    $('news-count').textContent = `${filteredNews.length} artigos`;
+    $('stat-news').textContent  = allNews.length;
+
+    const premium = isUserPremium();
+
+    filteredNews.forEach((article, idx) => {
+      const cat  = article.categoria || categorize(article.titulo, article.resumo);
+      const bias = biasBadge(article.titulo, article.resumo);
+      const card = document.createElement('div');
+      card.className = 'news-card';
+
+      const locked = !premium && idx >= 3;
+      if (locked) card.classList.add('news-blur');
+
+      card.innerHTML = `
+        <div class="card-meta">
+          <span class="card-cat">${cat}</span>
+          ${bias}
+        </div>
+        <h2>${article.titulo}</h2>
+        <p>${article.resumo}</p>
+        <div class="card-actions">
+          <a class="btn-read" href="${article.url}" target="_blank" rel="noopener">LER MAIS →</a>
+          <button class="btn-share" onclick="compartilhar('${encodeURIComponent(article.url)}', this)">📤 COMPARTILHAR</button>
+        </div>
+      `;
+
+      /* Interceptar clique em notícia bloqueada */
+      card.querySelector('.btn-read').addEventListener('click', e => {
+        if (!isUserPremium()) {
+          newsReadCount++;
+          localStorage.setItem('bsc_read_count', newsReadCount);
+          if (newsReadCount >= 3) {
+            e.preventDefault();
+            showPaywall();
+            document.querySelectorAll('.news-card').forEach((c, i) => {
+              if (i >= 3) c.classList.add('news-blur');
+            });
+          }
+        }
+      });
+
+      container.appendChild(card);
+    });
+
+    /* Atualizar ticker */
+    const headlines = filteredNews.slice(0, 6).map(a => a.titulo).join(' &nbsp;•&nbsp; ');
+    $('ticker-text').innerHTML = `⚡ ${headlines} &nbsp;•&nbsp; `;
+  }
+
+  /* ── PAYWALL ── */
+  function showPaywall() {
+    if (document.querySelector('.paywall-overlay')) return;
+    const el = document.createElement('div');
+    el.className = 'paywall-overlay';
+    el.innerHTML = `
+      <div class="paywall-box">
+        <div class="icon">🔒</div>
+        <h2>CONTEÚDO EXCLUSIVO</h2>
+        <p>Você leu suas 3 notícias gratuitas de hoje.<br>Apoie o portal e acesse tudo, sem limites, por 30 dias.</p>
+        <button onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">APOIAR AGORA — R$ 10 →</button>
+        <button onclick="this.closest('.paywall-overlay').remove()" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:10px;font-size:.8em;letter-spacing:1px;">Continuar grátis (limitado)</button>
+      </div>
+    `;
+    document.body.appendChild(el);
+  }
+
+  /* ── COMPARTILHAR (viral-share endpoint) ── */
+  async function compartilhar(encodedUrl, btn) {
+    const url = decodeURIComponent(encodedUrl);
+    btn.disabled = true;
+    btn.textContent = '...';
+    try {
+      const fd = new FormData();
+      fd.append('articleUrl', url);
+      const r = await fetch('/functions/viral-share', { method: 'POST', body: fd });
+      if (r.ok) {
+        const data = await r.json();
+        if (data.success) {
+          /* Copia link para clipboard ou abre WhatsApp */
+          const msg = encodeURIComponent(data.shareText || `Leia sem censura: ${url}`);
+          window.open(`https://wa.me/?text=${msg}`, '_blank');
+        }
+      } else {
+        /* Fallback direto */
+        const msg = encodeURIComponent(`Leia esta notícia no Brasil Sem Censura: ${url}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+      }
+    } catch {
+      const msg = encodeURIComponent(`Leia esta notícia no Brasil Sem Censura: ${url}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+    btn.disabled = false;
+    btn.textContent = '📤 COMPARTILHAR';
+  }
+
+  /* ── COLABORADORES ── */
+  async function enviarColaboracao() {
+    const urlInput = $('colab-url');
+    const msg      = $('colab-msg');
+    const url      = urlInput.value.trim();
+    if (!url) { msg.textContent = '⚠ Cole um link válido.'; return; }
+    msg.textContent = 'Enviando...';
+    try {
+      const r = await fetch('/functions/colaboradores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, token: localStorage.getItem('bsc_token') || '' })
+      });
+      const data = await r.json();
+      msg.textContent = data.success
+        ? '✅ Notícia enviada! Nossa IA irá analisá-la. Obrigado!'
+        : `⚠ ${data.message || 'Erro ao enviar.'}`;
+      if (data.success) urlInput.value = '';
+    } catch {
+      msg.textContent = '⚠ Não foi possível conectar ao servidor.';
+    }
+    setTimeout(() => { msg.textContent = ''; }, 5000);
+  }
+
+  /* ── POPUP BOAS-VINDAS ── */
+  function showWelcomePopup() {
+    if (localStorage.getItem('bsc_welcome_shown')) return;
+    localStorage.setItem('bsc_welcome_shown', '1');
+
+    const el = document.createElement('div');
+    el.className = 'welcome-overlay';
+    el.id = 'welcome-popup';
+    el.innerHTML = `
+      <div class="welcome-box">
+        <button class="close-btn" onclick="fecharBV()">✕</button>
+        <div class="welcome-badge">OFERTA EXCLUSIVA</div>
+        <h2>3 DIAS PREMIUM GRÁTIS</h2>
+        <p>Acesse todas as notícias sem limites.<br>Sem cartão de crédito. Ativação instantânea.</p>
+        <div class="countdown-wrap">
+          <div class="countdown-label">Oferta expira em</div>
+          <div class="countdown-time" id="countdown">10:00</div>
+        </div>
+        <button onclick="window.location.href='https://brasilsemcensura.pages.dev/apoie'">ATIVAR AGORA — GRÁTIS →</button>
+        <button class="welcome-skip" onclick="fecharBV()">Não, prefiro continuar com limite</button>
+      </div>
+    `;
+    document.body.appendChild(el);
+    iniciarCountdown();
+  }
+
+  function fecharBV() {
+    const p = $('welcome-popup');
+    if (p) p.remove();
+  }
+
+  let countdownInterval;
+  function iniciarCountdown() {
+    let secs = 600;
+    const el = $('countdown');
+    if (!el) return;
+    countdownInterval = setInterval(() => {
+      if (secs <= 0) { clearInterval(countdownInterval); fecharBV(); return; }
+      secs--;
+      const m = String(Math.floor(secs / 60)).padStart(2, '0');
+      const s = String(secs % 60).padStart(2, '0');
+      if (el) el.textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  /* ── FETCH NOTÍCIAS ── */
+  async function startScan() {
+    if (buscando) return;
+    buscando = true;
+    admLog('Buscando notícias...');
+    const isPremium = isUserPremium();
+    try {
+      const r = await fetch(`/functions/fetch-news?premium=${isPremium}&_=${Date.now()}`);
+      if (r.ok) {
+        const raw = await r.json();
+        if (raw.articles && raw.articles.length) {
+          allNews = raw.articles.map(a => ({
+            ...a,
+            categoria: a.categoria || categorize(a.titulo || '', a.resumo || '')
+          }));
+          renderAll();
+          salvarCache(allNews);
+          const now = new Date();
+          const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+          $('lastUpdate').textContent = `Atualizado ${time}`;
+          admLog(`✔ ${allNews.length} notícias carregadas.`);
+        } else {
+          admLog('⚠ Sem artigos novos.');
+        }
+      } else {
+        admLog(`⚠ HTTP ${r.status}`);
+      }
+    } catch(e) {
+      admLog(`⚠ ${e.message}`);
+    }
+    buscando = false;
+  }
+
+  /* ── FILTRO CATEGORIAS ── */
+  document.querySelectorAll('.cat-btn, nav a[data-cat]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      currentCat = btn.dataset.cat || 'Todos';
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn.classList.contains('cat-btn')) btn.classList.add('active');
+      else {
+        document.querySelectorAll('.cat-btn').forEach(b => {
+          if (b.dataset.cat === currentCat) b.classList.add('active');
+        });
+      }
+      renderAll();
+    });
+  });
+
+  /* ── SCROLL TOP ── */
+  window.addEventListener('scroll', () => {
+    $('scrollTop').classList.toggle('show', window.scrollY > 400);
+  });
+
+  /* ── INIT ── */
+  window.addEventListener('load', () => {
+    checkExpiry();
+    const access = checkURLToken();
+
+    /* Carrega cache imediatamente */
+    allNews = carregarCache();
+    if (allNews.length) {
+      renderAll();
+    }
+
+    if (access === 'owner') {
+      const el = document.createElement('div');
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+      el.innerHTML = `<div style="background:var(--bg2);border:1px solid rgba(245,200,66,.35);border-top:3px solid var(--gold);max-width:400px;width:100%;padding:40px;text-align:center;border-radius:6px">
+        <div style="font-size:52px">👑</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2em;letter-spacing:4px;color:var(--gold);margin:12px 0">BEM-VINDO, DONO!</div>
+        <div style="font-size:.88em;color:var(--muted);margin-bottom:24px">Acesso total e permanente ativado.<br>Análise IA em cada notícia desbloqueada.</div>
+        <button onclick="this.closest('div[style]').remove();renderAll();" style="width:100%;background:linear-gradient(90deg,#f59e0b,#f5c842);color:#0a0a0f;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:1.2em;letter-spacing:3px;cursor:pointer;border-radius:4px">ENTRAR →</button>
+      </div>`;
+      document.body.appendChild(el);
+    } else if (access === 'paid') {
+      showToast('✅ Acesso Premium ativado!');
+      renderAll();
+    }
+
+    /* Busca notícias reais */
+    startScan();
+
+    /* Atualização periódica */
+    const interval = isUserPremium() ? 30 * 60 * 1000 : 60 * 60 * 1000;
+    setInterval(startScan, interval);
+    window.addEventListener('online', startScan);
+
+    /* Popup boas-vindas (2s delay) */
+    if (!isUserPremium()) {
+      setTimeout(showWelcomePopup, 2000);
+    }
+  });
+</script>
+</body>
+</html>
