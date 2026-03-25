@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "pattern": "/functions/*",
+      "type": "filesystem"
+    },
+    {
+      "pattern": "/fetch-news",
+      "type": "filesystem"
+    },
+    {
+      "pattern": "/groq-proxy",
+      "type": "filesystem"
+    }
+  ]
+}
