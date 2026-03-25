@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Brasil Sem Censura – Informação Soberana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: #0a0c10;
+            color: #eef2ff;
+            line-height: 1.5;
+        }
+
+        /* Header principal */
+        .site-header {
+            background: #000000cc;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #2a2e3a;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f5b042, #c92c2c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            background: #1e2a2a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            color: #5fdc7a;
+        }
+
+        /* Navegação de categorias */
+        .nav-cats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            border-top: 1px solid #2a2e3a;
+            padding-top: 0.8rem;
+        }
+
+        .nav-cats a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+
+        .nav-cats a:hover, .nav-cats a.active {
+            background: #c92c2c;
+            color: white;
+        }
+
+        /* Container principal */
+        .main-grid {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Feed de notícias */
+        .feed {
+            background: #111317;
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid #22262f;
+        }
+
+        .feed h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: #aaa;
+        }
+
+        .article-card {
+            background: #0f1117;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            border-left: 4px solid #c92c2c;
+            transition: transform 0.2s;
+        }
+
+        .article-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ffd966;
+        }
+
+        .article-card p {
+            color: #b9c3d0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .blurred {
+            filter: blur(4px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Sidebar direita */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .widget {
+            background: #111317;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border: 1px solid #22262f;
+        }
+
+        .widget h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #c92c2c;
+            padding-left: 0.6rem;
+        }
+
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .trend-tag {
+            background: #1e1f2c;
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            margin: 0.2rem;
+        }
+
+        /* Planos de assinatura */
+        .pricing {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .plan {
+            flex: 1;
+            background: #0a0c10;
+            border-radius: 20px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #2a2e3a;
+        }
+
+        .plan.free {
+            border-color: #2e7d64;
+        }
+
+        .plan.paid {
+            border-color: #c92c2c;
+        }
+
+        .plan h4 {
+            font-size: 1.3rem;
+        }
+
+        .plan ul {
+            list-style: none;
+            margin: 0.8rem 0;
+            font-size: 0.8rem;
+        }
+
+        .plan li {
+            margin: 0.3rem 0;
+        }
+
+        .btn {
+            background: #c92c2c;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #c92c2c;
+        }
+
+        footer {
+            background: #080b0e;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+            border-top: 1px solid #1e2128;
+        }
+
+        /* Paywall overlay */
+        .paywall-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .paywall-card {
+            background: #111317;
+            padding: 2rem;
+            border-radius: 32px;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #c92c2c;
+        }
+
+        #qrcode img {
+            max-width: 180px;
+            margin-top: 1rem;
+        }
+
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1f2a2f;
+            padding: 0.8rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 1100;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+            .site-header {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-top">
+        <div class="logo">
+            <h1>BRASIL SEM CENSURA</h1>
+            <p>INFORMAÇÃO SOBERANA – SEM FILTROS</p>
+        </div>
+        <div class="status">🔴 AO VIVO · ATUALIZADO</div>
+    </div>
+    <div class="nav-cats">
+        <a href="#" class="active" data-cat="all">TODOS</a>
+        <a href="#" data-cat="brasil">🇧🇷 BRASIL</a>
+        <a href="#" data-cat="geopolitica">GEOPOLÍTICA</a>
+        <a href="#" data-cat="tecnologia">TECNOLOGIA</a>
+        <a href="#" data-cat="defesa">DEFESA</a>
+        <a href="#" data-cat="brics">BRICS</a>
+        <a href="#" data-cat="energia">ENERGIA</a>
+        <a href="#" data-cat="economia">ECONOMIA</a>
+        <a href="#" data-cat="urgente">⚡ URGENTE</a>
+    </div>
+</header>
+
+<div class="main-grid">
+    <!-- COLUDA ESQUERDA: FEED DE NOTÍCIAS -->
+    <div class="feed">
+        <h2>📰 FEED</h2>
+        <div id="news-container">
+            <div class="loading-state">
+                🔍 BUSCANDO AS PRINCIPAIS NOTÍCIAS DO MUNDO...<br>
+                <small>O sistema está coletando e traduzindo notícias agora. Aguarde alguns instantes.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUNA DIREITA: SIDEBAR -->
+    <div class="sidebar">
+        <div class="widget">
+            <h3>⚡ Últimas Urgentes</h3>
+            <div id="urgent-list">Carregando...</div>
+        </div>
+        <div class="widget">
+            <h3>📊 Mercados</h3>
+            <div class="market-item"><span>PETRÓLEO BRENT</span> <span>USD / barril <strong>$89.4</strong> ▲ +1.2</span></div>
+            <div class="market-item"><span>DÓLAR</span> <span>BRL / USD <strong>R$4.82</strong> ▼ -0.3</span></div>
+            <div class="market-item"><span>YUAN</span> <span>BRL / CNY <strong>R$0.66</strong> ▲ +0.1</span></div>
+        </div>
+        <div class="widget">
+            <h3>🔥 Tópicos em Alta</h3>
+            <div>
+                <span class="trend-tag">#SEMICONDUTORES</span>
+                <span class="trend-tag">#BRICS</span>
+                <span class="trend-tag">#DEFESA</span>
+                <span class="trend-tag">#PRÉ-SAL</span>
+                <span class="trend-tag">#MULTIPOLARIDADE</span>
+                <span class="trend-tag">#GEOPOLITICA</span>
+                <span class="trend-tag">#SULGLOBAL</span>
+                <span class="trend-tag">#SOBERANIA</span>
+            </div>
+        </div>
+
+        <div class="widget">
+            <h3>📰 Planos de Acesso</h3>
+            <div class="pricing">
+                <div class="plan free">
+                    <h4>Grátis</h4>
+                    <p><strong>R$ 0/mês</strong></p>
+                    <ul>
+                        <li>✓ 3 notícias completas por dia</li>
+                        <li>✓ Títulos de todas as notícias</li>
+                        <li>✓ Análise IA visível nos cards</li>
+                        <li>✗ Notícias completas ilimitadas</li>
+                        <li>✗ Compartilhar no WhatsApp</li>
+                    </ul>
+                    <button class="btn-outline btn" id="continue-free">Continuar Grátis</button>
+                </div>
+                <div class="plan paid">
+                    <h4>Apoiador</h4>
+                    <p><strong>R$ 10/mês</strong></p>
+                    <ul>
+                        <li>✓ Notícias completas ilimitadas</li>
+                        <li>✓ Análise IA "O Outro Lado" completa</li>
+                        <li>✓ Compartilhar no WhatsApp</li>
+                        <li>✓ Suporte ao jornalismo livre</li>
+                    </ul>
+                    <button class="btn" id="support-pix">⚡ Apoiar com Pix — R$ 10</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>BRASIL SEM CENSURA — INFORMAÇÃO SOBERANA DESDE 2024</p>
+    <p>Portal independente dedicado à soberania nacional, BRICS, tecnologia e geopolítica.</p>
+    <p>© 2026 BRASIL SEM CENSURA. TODOS OS DIREITOS RESERVADOS.</p>
+</footer>
+
+<div id="paywall" class="paywall-overlay">
+    <div class="paywall-card">
+        <h2>🔒 Limite diário atingido</h2>
+        <p>Você leu suas 3 notícias gratuitas de hoje.</p>
+        <p>💳 Apoie com <strong>R$ 10 (Pix)</strong> e leia todas as notícias sem limite hoje.</p>
+        <button id="pay-button-pix">Gerar QR Code Pix</button>
+        <div id="qrcode"></div>
+        <button id="close-paywall" style="margin-top:10px; background:#333;">Fechar</button>
+    </div>
+</div>
+
+<div id="welcome-popup" class="popup">
+    📰 Você tem <span id="counter">3</span> notícias grátis hoje.
+</div>
+
+<script>
+    // ======================== CONFIG ========================
+    const urlParams = new URLSearchParams(window.location.search);
+    const isOwner = urlParams.get('dono') === 'DKGEMERBR';
+
+    let remainingArticles = 3;
+    let allArticles = [];
+    let paywallActive = false;
+
+    // Elementos
+    const newsContainer = document.getElementById('news-container');
+    const urgentDiv = document.getElementById('urgent-list');
+    const paywallDiv = document.getElementById('paywall');
+    const payButton = document.getElementById('pay-button-pix');
+    const closePaywall = document.getElementById('close-paywall');
+    const qrcodeDiv = document.getElementById('qrcode');
+    const continueFreeBtn = document.getElementById('continue-free');
+
+    // ======================== CARREGAR NOTÍCIAS ========================
+    async function loadNews() {
+        try {
+            const res = await fetch('/functions/fetch-news');
+            const data = await res.json();
+            allArticles = Array.isArray(data) ? data : (data.articles || []);
+            if (!allArticles.length) throw new Error('Nenhuma notícia retornada');
+            renderNews(allArticles);
+            renderUrgent(allArticles.slice(0, 3));
+        } catch (err) {
+            newsContainer.innerHTML = `<div class="loading-state">❌ Erro ao carregar notícias. Tente novamente mais tarde.<br>${err.message}</div>`;
+            console.error(err);
+        }
+    }
+
+    function renderNews(articles) {
+        newsContainer.innerHTML = '';
+        if (!articles.length) {
+            newsContainer.innerHTML = '<div class="loading-state">Nenhuma notícia disponível no momento.</div>';
+            return;
+        }
+
+        articles.forEach((article, idx) => {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+            card.setAttribute('data-idx', idx);
+            card.innerHTML = `
+                <h3>${article.title || 'Sem título'}</h3>
+                <p>${article.description || ''}</p>
+                <div class="article-meta">
+                    <span>📰 ${article.source_id || 'Fonte independente'}</span>
+                    ${article.bias ? `<span>🧠 Viés: ${article.bias}</span>` : ''}
+                </div>
+            `;
+            // Aplica blur se for não-dono e já passou do limite
+            if (!isOwner && remainingArticles <= 0 && idx >= 3) {
+                card.classList.add('blurred');
+            }
+            newsContainer.appendChild(card);
+        });
+
+        if (!isOwner && remainingArticles <= 0) {
+            showPaywall();
+        }
+    }
+
+    function renderUrgent(urgentList) {
+        if (!urgentList.length) {
+            urgentDiv.innerHTML = '<small>Nenhuma urgente no momento</small>';
+            return;
+        }
+        urgentDiv.innerHTML = urgentList.map(a => `<div style="margin-bottom:8px;"><strong>⚡ ${a.title?.slice(0,70)}</strong><br><small>${a.pubDate ? new Date(a.pubDate).toLocaleTimeString() : 'agora'}</small></div>`).join('');
+    }
+
+    // ======================== PAYWALL E LIMITE ========================
+    function trackRead() {
+        if (isOwner) return;
+        let reads = parseInt(localStorage.getItem('reads_today') || '0');
+        remainingArticles = Math.max(0, 3 - reads);
+        document.getElementById('counter').innerText = remainingArticles;
+
+        if (reads < 3) {
+            const popup = document.getElementById('welcome-popup');
+            popup.style.display = 'block';
+            setTimeout(() => popup.style.display = 'none', 3500);
+        } else {
+            remainingArticles = 0;
+            renderNews(allArticles);
+        }
+    }
+
+    // Incrementa leitura ao clicar em qualquer card não-blur
+    document.addEventListener('click', (e) => {
+        if (isOwner || paywallActive) return;
+        const card = e.target.closest('.article-card');
+        if (!card) return;
+        if (card.classList.contains('blurred')) return;
+
+        let reads = parseInt(localStorage.getItem('reads_today') || '0');
+        reads++;
+        localStorage.setItem('reads_today', reads);
+        if (reads >= 3) {
+            remainingArticles = 0;
+            renderNews(allArticles);
+        } else {
+            remainingArticles = 3 - reads;
+            document.getElementById('counter').innerText = remainingArticles;
+        }
+    });
+
+    function showPaywall() {
+        if (isOwner) return;
+        paywallActive = true;
+        paywallDiv.style.display = 'flex';
+    }
+
+    function hidePaywall() {
+        paywallActive = false;
+        paywallDiv.style.display = 'none';
+        qrcodeDiv.innerHTML = '';
+    }
+
+    // Reset diário
+    const today = new Date().toDateString();
+    if (localStorage.getItem('last_date') !== today) {
+        localStorage.setItem('reads_today', '0');
+        localStorage.setItem('last_date', today);
+    }
+
+    // ======================== PIX ========================
+    payButton?.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/functions/mp-create', { method: 'POST' });
+            const data = await res.json();
+            if (data.qr_code) {
+                qrcodeDiv.innerHTML = `<img src="${data.qr_code}" alt="QR Code Pix">`;
+                // Simula liberação após pagamento (por enquanto recarrega)
+                setTimeout(() => {
+                    alert("Pagamento simulado. Recarregue a página para liberar acesso.");
+                    location.reload();
+                }, 10000);
+            } else {
+                alert('Erro ao gerar Pix. Tente novamente.');
+            }
+        } catch (err) {
+            alert('Falha na comunicação com o servidor Pix.');
+        }
+    });
+
+    closePaywall?.addEventListener('click', hidePaywall);
+
+    // Botão "Continuar Grátis" só fecha popup
+    continueFreeBtn?.addEventListener('click', () => {
+        hidePaywall();
+    });
+
+    // Categorias (simples filtro local - sem mudar backend)
+    const catLinks = document.querySelectorAll('.nav-cats a');
+    catLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const cat = link.getAttribute('data-cat');
+            // Remove active
+            catLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            if (cat === 'all') {
+                renderNews(allArticles);
+                return;
+            }
+            // Filtro simples por palavra-chave no título ou descrição
+            const filtered = allArticles.filter(a =>
+                a.title?.toLowerCase().includes(cat) ||
+                a.description?.toLowerCase().includes(cat)
+            );
+            renderNews(filtered);
+        });
+    });
+
+    // Inicialização
+    loadNews();
+    trackRead();
+</script>
+</body>
+</html>
