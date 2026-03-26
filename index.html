@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brasil Sem Censura – Informação Soberana</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; line-height: 1.5; }
+.container { display: flex; max-width: 1400px; margin: 0 auto; padding: 1rem; gap: 2rem; }
+.sidebar-left { width: 260px; background: #111317; border-radius: 24px; padding: 1.5rem; position: sticky; top: 1rem; height: fit-content; border: 1px solid #22262f; }
+.logo h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #f5b042, #e03a3a); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.25rem; }
+.logo p { font-size: 0.7rem; color: #9ca3af; margin-bottom: 1.5rem; }
+.menu-cats { list-style: none; margin-bottom: 2rem; }
+.menu-cats li { margin-bottom: 0.5rem; }
+.menu-cats a { display: block; padding: 0.5rem 0.8rem; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.2s; font-weight: 500; }
+.menu-cats a:hover, .menu-cats a.active { background: #e03a3a; color: white; }
+.status { font-size: 0.7rem; background: rgba(34, 197, 94, 0.2); padding: 0.3rem 0.8rem; border-radius: 30px; display: inline-block; margin-top: 1rem; }
+.main-content { flex: 1; min-width: 0; }
+.featured { background: #111317; border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #e03a3a; }
+.featured h2 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #ffd966; }
+.feed { background: #111317; border-radius: 24px; padding: 1.5rem; border: 1px solid #22262f; }
+.feed h3 { font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.article-card { background: #0f1117; border-radius: 20px; margin-bottom: 1.5rem; padding: 1.2rem; border-left: 3px solid #e03a3a; transition: transform 0.2s; cursor: pointer; }
+.article-card:hover { transform: translateY(-2px); }
+.article-card h4 { font-size: 1.2rem; margin-bottom: 0.5rem; color: #ffd966; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.exclusive-badge { background: #e03a3a; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: bold; color: white; }
+.article-card p { color: #cbd5e6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+.article-meta { font-size: 0.75rem; color: #7e8a98; display: flex; gap: 1rem; flex-wrap: wrap; }
+.blurred { filter: blur(4px); pointer-events: none; user-select: none; }
+.sidebar-right { width: 280px; background: #111317; border-radius: 24px; padding: 1.5rem; position: sticky; top: 1rem; height: fit-content; border: 1px solid #22262f; }
+.widget { margin-bottom: 2rem; }
+.widget h4 { font-size: 1.1rem; margin-bottom: 1rem; border-left: 3px solid #e03a3a; padding-left: 0.6rem; }
+.market-item { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; }
+.trend-tag { background: #1e1f2c; display: inline-block; padding: 0.3rem 0.7rem; border-radius: 30px; font-size: 0.7rem; margin: 0.2rem; }
+.support-card { background: #0a0c10; border-radius: 20px; padding: 1rem; text-align: center; border: 1px solid #e03a3a; margin-top: 1rem; }
+.btn { background: #e03a3a; border: none; color: white; padding: 0.6rem 1rem; border-radius: 40px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 0.8rem; }
+.city-input { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.city-input input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 0.5rem; border-radius: 30px; color: white; }
+.city-input button { background: #e03a3a; border: none; padding: 0.5rem 1rem; border-radius: 30px; cursor: pointer; color: white; }
+.local-news-results { margin-top: 1rem; font-size: 0.8rem; }
+.local-news-item { margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #333; }
+.free-progress { margin: 1rem 0; background: rgba(255,255,255,0.1); border-radius: 20px; height: 6px; overflow: hidden; }
+.free-progress-fill { width: 0%; height: 100%; background: #e03a3a; transition: width 0.3s; }
+.paywall-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.paywall-card { background: #11151f; padding: 2rem; border-radius: 32px; max-width: 420px; text-align: center; border: 1px solid #e03a3a; }
+#qrcode img { max-width: 180px; margin-top: 1rem; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: #1f2a2f; color: white; padding: 0.8rem 1.2rem; border-radius: 40px; font-size: 0.85rem; z-index: 1100; box-shadow: 0 0 10px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+footer { background: #080b0e; text-align: center; padding: 2rem; margin-top: 3rem; font-size: 0.75rem; color: #6b7280; border-top: 1px solid #1e2128; }
+@media (max-width: 1000px) { .container { flex-direction: column; } .sidebar-left, .sidebar-right { width: 100%; position: static; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar-left">
+    <div class="logo"><h1>BRASIL SEM CENSURA</h1><p>INFORMAÇÃO SOBERANA · SEM FILTROS</p></div>
+    <ul class="menu-cats">
+      <li><a href="#" data-cat="all" class="active">NOTÍCIAS</a></li>
+      <li><a href="#" data-cat="brasil">🇧🇷 BRASIL</a></li>
+      <li><a href="#" data-cat="geopolitica">GEOPOLÍTICA</a></li>
+      <li><a href="#" data-cat="tecnologia">TECNOLOGIA</a></li>
+      <li><a href="#" data-cat="defesa">DEFESA</a></li>
+      <li><a href="#" data-cat="brics">BRICS</a></li>
+      <li><a href="#" data-cat="energia">ENERGIA</a></li>
+      <li><a href="#" data-cat="economia">ECONOMIA</a></li>
+    </ul>
+    <div class="status" id="status-badge">🟢 AO VIVO</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="featured" id="featured-article">
+      <h2>⚡ URGENTE GEOPOLÍTICA</h2>
+      <div id="featured-content">Carregando destaque...</div>
+    </div>
+    <div class="feed">
+      <h3>📋 ÚLTIMAS NOTÍCIAS</h3>
+      <div id="free-progress-container" style="margin-bottom:1rem;display:none;">
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+          <span>📖 Leituras grátis hoje</span>
+          <span id="remaining-counter">3</span>
+        </div>
+        <div class="free-progress"><div class="free-progress-fill" id="progress-fill" style="width:0%;"></div></div>
+      </div>
+      <div id="news-container"><div class="loading-state" style="text-align:center;padding:2rem;">🔍 BUSCANDO NOTÍCIAS...</div></div>
+    </div>
+  </main>
+
+  <aside class="sidebar-right">
+    <div class="widget">
+      <h4>📊 MERCADOS</h4>
+      <div class="market-item"><span>PETRÓLEO BRENT</span><span>USD/barril <strong>$89.4</strong> ▲</span></div>
+      <div class="market-item"><span>DÓLAR</span><span>BRL/USD <strong>R$4.82</strong> ▼</span></div>
+      <div class="market-item"><span>YUAN</span><span>BRL/CNY <strong>R$0.66</strong> ▲</span></div>
+    </div>
+    <div class="widget">
+      <h4>🔥 TÓPICOS EM ALTA</h4>
+      <div>
+        <span class="trend-tag">#SEMICONDUTORES</span>
+        <span class="trend-tag">#BRICS</span>
+        <span class="trend-tag">#DEFESA</span>
+        <span class="trend-tag">#PRÉ-SAL</span>
+        <span class="trend-tag">#MULTIPOLARIDADE</span>
+      </div>
+    </div>
+    <div id="city-widget" class="widget" style="display:none;">
+      <h4>📍 NOTÍCIAS DA CIDADE</h4>
+      <div class="city-input">
+        <input type="text" id="city-name" placeholder="Digite sua cidade">
+        <button id="search-city">Buscar</button>
+      </div>
+      <div id="local-news-results" class="local-news-results"></div>
+    </div>
+    <div class="widget">
+      <h4>⚡ APOIE O PORTAL</h4>
+      <div class="support-card">
+        <h5>R$ 10</h5>
+        <p>30 DIAS DE ACESSO COMPLETO</p>
+        <p style="font-size:0.8rem;">Leia tudo, compartilhe e baixe. Anônimo, via Pix.</p>
+        <button id="support-pix" class="btn">Apoiar com Pix — R$ 10</button>
+        <p style="font-size:0.7rem;margin-top:0.5rem;">Pagamento via Mercado Pago – seus dados não são compartilhados.</p>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <p>BRASIL SEM CENSURA — INFORMAÇÃO SOBERANA DESDE 2024</p>
+  <p>© 2026 BRASIL SEM CENSURA. TODOS OS DIREITOS RESERVADOS.</p>
+</footer>
+
+<div id="paywall" class="paywall-overlay">
+  <div class="paywall-card">
+    <h2>🔒 Apoie o jornalismo independente</h2>
+    <p id="paywall-message"></p>
+    <p>Por apenas <strong>R$ 10</strong> você garante acesso ilimitado por 30 dias e ajuda a manter nosso trabalho.</p>
+    <button id="pay-button-pix" class="btn">Gerar QR Code Pix</button>
+    <div id="qrcode"></div>
+    <button id="close-paywall" style="margin-top:10px;background:#333;border:none;padding:0.5rem;border-radius:30px;cursor:pointer;color:white;">Voltar</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const isOwner = urlParams.get('dono') === 'DKGEMERBR';
+let allArticles = [], isPremium = false, remainingGenericReads = 3, paywallActive = false, refreshInterval = null;
+
+const newsContainer = document.getElementById('news-container'),
+      featuredDiv = document.getElementById('featured-content'),
+      paywallDiv = document.getElementById('paywall'),
+      payButton = document.getElementById('pay-button-pix'),
+      closePaywall = document.getElementById('close-paywall'),
+      supportPixBtn = document.getElementById('support-pix'),
+      cityWidget = document.getElementById('city-widget'),
+      searchCityBtn = document.getElementById('search-city'),
+      cityInput = document.getElementById('city-name'),
+      localResultsDiv = document.getElementById('local-news-results'),
+      statusBadge = document.getElementById('status-badge'),
+      progressContainer = document.getElementById('free-progress-container'),
+      progressFill = document.getElementById('progress-fill'),
+      remainingSpan = document.getElementById('remaining-counter'),
+      qrcodeDiv = document.getElementById('qrcode');
+
+function isPremiumOrTrial() {
+  if (isOwner) return true;
+  const until = localStorage.getItem('premium_until');
+  if (until && new Date(until) > new Date()) return true;
+  return false;
+}
+
+function initTrial() {
+  if (!localStorage.getItem('trial_start')) {
+    const start = new Date();
+    localStorage.setItem('trial_start', start.toISOString());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 3);
+    localStorage.setItem('premium_until', end.toISOString());
+    showToast('🎉 Você ganhou 3 dias de acesso premium! Aproveite todas as notícias.', 5000);
+    return true;
+  }
+  return false;
+}
+
+function updatePremiumUI() {
+  isPremium = isPremiumOrTrial();
+  if (isPremium) {
+    statusBadge.innerHTML = '⭐ PREMIUM · 🔴 AO VIVO';
+    statusBadge.style.background = 'rgba(224,58,58,0.2)';
+    cityWidget.style.display = 'block';
+    progressContainer.style.display = 'none';
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(loadNews, 30 * 60 * 1000);
+  } else {
+    statusBadge.innerHTML = '🟢 AO VIVO · ATUALIZADO';
+    statusBadge.style.background = 'rgba(34, 197, 94, 0.2)';
+    cityWidget.style.display = 'none';
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(loadNews, 60 * 60 * 1000);
+    if (localStorage.getItem('trial_start') && !localStorage.getItem('premium_until'))
+      showToast('🔒 Seu trial acabou. Apoie com R$ 10 e tenha acesso ilimitado.', 8000);
+  }
+  updateHourCounter();
+  loadNews();
+}
+
+function getHourKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}`;
+}
+
+function getReadsThisHour() {
+  const key = getHourKey();
+  const stored = localStorage.getItem(`reads_${key}`);
+  return stored ? parseInt(stored, 10) : 0;
+}
+
+function incrementReadsThisHour() {
+  const key = getHourKey();
+  let reads = getReadsThisHour();
+  reads++;
+  localStorage.setItem(`reads_${key}`, reads);
+  return reads;
+}
+
+function updateHourCounter() {
+  if (isPremium) return;
+  const reads = getReadsThisHour();
+  remainingGenericReads = Math.max(0, 3 - reads);
+  remainingSpan.innerText = remainingGenericReads;
+  const percent = (reads / 3) * 100;
+  progressFill.style.width = `${percent}%`;
+  if (reads > 0) progressContainer.style.display = 'block';
+}
+
+async function loadNews() {
+  try {
+    const res = await fetch('/functions/fetch-news');
+    const data = await res.json();
+    allArticles = Array.isArray(data) ? data : (data.articles || []);
+    if (!allArticles.length) throw new Error('Nenhuma notícia retornada');
+    renderFeatured(allArticles);
+    renderNews(allArticles);
+  } catch(err) {
+    newsContainer.innerHTML = `<div class="loading-state">❌ Erro ao carregar notícias. Tente novamente mais tarde.<br>${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+function renderFeatured(articles) {
+  if (!articles.length) { featuredDiv.innerHTML = '<p>Nenhuma notícia em destaque.</p>'; return; }
+  const featured = articles.find(a => a.type === 'premium') || articles[0];
+  featuredDiv.innerHTML = `<h2>${featured.title}</h2><p>${featured.description ? featured.description.substring(0,200)+'...' : ''}</p><div class="article-meta">📰 ${featured.source_id}</div>`;
+}
+
+function renderNews(articles) {
+  newsContainer.innerHTML = '';
+  if (!articles.length) { newsContainer.innerHTML = '<div class="loading-state">Nenhuma notícia disponível no momento.</div>'; return; }
+  const premium = isPremiumOrTrial();
+  const readsThisHour = getReadsThisHour();
+  const canReadGeneric = readsThisHour < 3;
+  articles.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'article-card';
+    const isPremiumArticle = article.type === 'premium';
+    let contentHtml = '';
+    if (premium) {
+      contentHtml = `<p>${article.description || ''}</p>`;
+    } else {
+      if (isPremiumArticle) {
+        contentHtml = `<div class="exclusive-badge">⭐ Exclusivo BSC</div><p>${article.preview || (article.description ? article.description.substring(0,150)+'...' : 'Conteúdo exclusivo para apoiadores.')}</p><div class="article-meta">🔒 Acesse completo apoiando o jornalismo independente</div>`;
+      } else {
+        contentHtml = `<p>${article.description || ''}</p>`;
+        if (!canReadGeneric && readsThisHour >= 3) card.classList.add('blurred');
+      }
+    }
+    card.innerHTML = `<h4>${article.title}</h4>${contentHtml}<div class="article-meta"><span>📰 ${article.source_id || 'Fonte independente'}</span>${article.bias ? `<span>🎯 Viés: ${article.bias}</span>` : ''}</div>`;
+    card.dataset.type = isPremiumArticle ? 'premium' : 'generic';
+    newsContainer.appendChild(card);
+  });
+}
+
+function handleArticleClick(e) {
+  if (isPremiumOrTrial()) return;
+  const card = e.target.closest('.article-card');
+  if (!card) return;
+  const type = card.dataset.type;
+  if (type === 'premium') { showPaywall('Notícia exclusiva para apoiadores. Apoie com R$ 10 e tenha acesso completo.'); return; }
+  const reads = getReadsThisHour();
+  if (reads >= 3) { showPaywall('Você já usou suas 3 leituras gratuitas desta hora. Apoie para ler mais.'); return; }
+  incrementReadsThisHour();
+  updateHourCounter();
+  renderNews(allArticles);
+}
+
+function showPaywall(msg) {
+  if (paywallActive) return;
+  paywallActive = true;
+  const msgEl = document.getElementById('paywall-message');
+  if (msg) msgEl.innerText = msg;
+  paywallDiv.style.display = 'flex';
+}
+
+function hidePaywall() {
+  paywallActive = false;
+  paywallDiv.style.display = 'none';
+  qrcodeDiv.innerHTML = '';
+}
+
+async function handlePayment() {
+  try {
+    const res = await fetch('/functions/mp-create', { method: 'POST' });
+    const data = await res.json();
+    if (data.qr_code) {
+      qrcodeDiv.innerHTML = `<img src="data:image/png;base64,${data.qr_code}" alt="QR Code Pix">`;
+      setTimeout(() => {
+        const expiry = new Date();
+        expiry.setDate(expiry.getDate() + 30);
+        localStorage.setItem('premium_until', expiry.toISOString());
+        showToast('✅ Pagamento recebido! Seu acesso premium foi ativado por 30 dias.', 5000);
+        location.reload();
+      }, 10000);
+    } else {
+      alert('Erro ao gerar Pix. Tente novamente.');
+    }
+  } catch(err) {
+    alert('Falha na comunicação com o servidor Pix.');
+  }
+}
+
+async function searchLocalNews() {
+  const city = cityInput.value.trim();
+  if (!city) return;
+  localResultsDiv.innerHTML = '<div>Buscando...</div>';
+  try {
+    const res = await fetch('/functions/local-news', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city })
+    });
+    const data = await res.json();
+    if (data.articles && data.articles.length) {
+      localResultsDiv.innerHTML = data.articles.map(a => `<div class="local-news-item"><strong>${a.title}</strong><br><small>${a.description || ''}</small></div>`).join('');
+    } else {
+      localResultsDiv.innerHTML = '<div>Nenhuma notícia encontrada para esta cidade.</div>';
+    }
+  } catch(err) {
+    localResultsDiv.innerHTML = '<div>Erro ao buscar notícias locais.</div>';
+  }
+}
+
+function setupCategoryFilter() {
+  const catLinks = document.querySelectorAll('.menu-cats a');
+  catLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cat = link.getAttribute('data-cat');
+      catLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      if (cat === 'all') { renderNews(allArticles); return; }
+      const filtered = allArticles.filter(a =>
+        a.title?.toLowerCase().includes(cat) ||
+        a.description?.toLowerCase().includes(cat)
+      );
+      renderNews(filtered);
+    });
+  });
+}
+
+function showToast(msg, dur = 3000) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function init() {
+  initTrial();
+  updatePremiumUI();
+  loadNews();
+  updateHourCounter();
+  document.addEventListener('click', handleArticleClick);
+  closePaywall.addEventListener('click', hidePaywall);
+  supportPixBtn.addEventListener('click', handlePayment);
+  payButton.addEventListener('click', handlePayment);
+  searchCityBtn.addEventListener('click', searchLocalNews);
+  setupCategoryFilter();
+  setInterval(() => {
+    const newKey = getHourKey();
+    if (window.currentHourKey !== newKey) {
+      window.currentHourKey = newKey;
+      updateHourCounter();
+      if (!isPremiumOrTrial()) renderNews(allArticles);
+    }
+  }, 60000);
+  window.currentHourKey = getHourKey();
+}
+
+init();
+</script>
+</body>
+</html>
